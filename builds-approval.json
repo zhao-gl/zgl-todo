@@ -1,0 +1,7 @@
+{
+  "approved": [
+    "electron",
+    "esbuild",
+    "@swc/core"
+  ]
+}
