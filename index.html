@@ -1,13 +1,44 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ZglTodo</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/svg+xml" href="#"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>zgl-todo</title>
+    <style>
+        /* style.css */
+        .title-bar {
+            height: 30px;
+            background: #222;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            -webkit-app-region: drag; /* 👈 允许拖动整个区域 */
+        }
+        .window-controls button {
+            -webkit-app-region: no-drag; /* 👈 按钮不可拖动 */
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 14px;
+            width: 40px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="title-bar" id="title-bar">
+    <div class="title">My App</div>
+    <div class="window-controls">
+        <button id="min-btn">—</button>
+        <button id="max-btn">□</button>
+        <button id="close-btn">×</button>
+    </div>
+</div>
+<div id="root"></div>
+<script type="module" src="/src/main.tsx"></script>
+<script src="/src/renderer.js"></script>
+</body>
 </html>
