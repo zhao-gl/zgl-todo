@@ -1,0 +1,21 @@
+# .editorconfig
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_size = 2
+
+# 缩进：统一用 2 个空格（JS/TS/JSON/YAML 等）
+[{*.js,*.ts,*.tsx,*.jsx,*.json,*.yml,*.yaml,*.toml}]
+indent_style = space
+
+# Makefile / Shell 脚本用 tab
+[{Makefile,*.mk,*.sh}]
+indent_style = tab
+
+# Markdown / 文本文件
+[*.md]
+trim_trailing_whitespace = false

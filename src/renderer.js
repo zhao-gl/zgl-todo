@@ -1,20 +1,23 @@
 // src/renderer.js
-
 // 添加窗口控制按钮事件监听
-document.addEventListener('DOMContentLoaded', () => {
-    const minBtn = document.getElementById('min-btn');
-    const maxBtn = document.getElementById('max-btn');
-    const closeBtn = document.getElementById('close-btn');
-
+const bindControlBtn = () => {
+  const minBtn = document.getElementById('window-min-btn');
+  const maxBtn = document.getElementById('window-max-btn');
+  const closeBtn = document.getElementById('window-close-btn');
+  if(minBtn && maxBtn && closeBtn){
     minBtn?.addEventListener('click', () => {
-        window.electronAPI?.minimizeWindow();
+      window.electronAPI?.minimizeWindow();
     });
-
     maxBtn?.addEventListener('click', () => {
-        window.electronAPI?.maximizeWindow();
+      window.electronAPI?.maximizeWindow();
     });
-
     closeBtn?.addEventListener('click', () => {
-        window.electronAPI?.closeWindow();
+      window.electronAPI?.closeWindow();
     });
-});
+  }else{
+    setTimeout(()=>{
+      bindControlBtn()
+    },500)
+  }
+};
+bindControlBtn()

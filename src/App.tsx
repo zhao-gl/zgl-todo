@@ -1,8 +1,7 @@
+import GlobalLayout from "@/layout/GlobalLayout.tsx";
 
 function App() {
-  return (
-    <>APP</>
-  )
+  return <GlobalLayout />
 }
 
 export default App

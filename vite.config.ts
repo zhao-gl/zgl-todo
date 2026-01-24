@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
+      '@': resolve(__dirname, './src'),
     },
   },
   build: {
@@ -18,4 +18,13 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  css: {
+    preprocessorOptions: {
+      less: {
+        // Less 配置选项
+        math: 'always',
+        javascriptEnabled: true,
+      },
+    },
+  }
 })
