@@ -8,33 +8,43 @@
     <style>
         /* style.css */
         .title-bar {
-            height: 30px;
-            background: #222;
+            height: 28px;
+            background: rgba(0, 0, 0, 0);
             color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 10px;
             -webkit-app-region: drag; /* 👈 允许拖动整个区域 */
         }
         .window-controls button {
             -webkit-app-region: no-drag; /* 👈 按钮不可拖动 */
             background: transparent;
             border: none;
-            color: white;
-            font-size: 14px;
-            width: 40px;
+            color: #333;
+            width: 30px;
             cursor: pointer;
+            line-height: 28px;
+            padding: 0;
+            font-weight: 400;
+        }
+        /* 最小化和最大化按钮悬停效果 */
+        .window-controls button:not(:last-child):hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        /* 关闭按钮悬停效果 */
+        .window-controls button:last-child:hover {
+            background: rgba(232, 17, 35, 0.63);
+            color: white;
         }
     </style>
 </head>
 <body>
 <div class="title-bar" id="title-bar">
-    <div class="title">My App</div>
+    <div class="title"></div>
     <div class="window-controls">
-        <button id="min-btn">—</button>
-        <button id="max-btn">□</button>
-        <button id="close-btn">×</button>
+        <button id="min-btn" style="font-size: 12px;vertical-align: bottom">—</button>
+        <button id="max-btn" style="font-size: 18px">◻</button>
+        <button id="close-btn" style="font-size: 18px">×</button>
     </div>
 </div>
 <div id="root"></div>
