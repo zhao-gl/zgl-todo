@@ -41,7 +41,34 @@
   }
   .tag {
     width: 100%;
-    height: calc(100% - 400px);
+    height: calc(100% - 122px - 64px - 44px);
+    padding: 14px;
+    .tagTitle {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .tagList {
+      //margin-left: 14px;
+    }
+    .tagItem{
+      width: 100%;
+      justify-content: flex-start;
+    }
+    .tagColor {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+  }
+  .recycle {
+    padding: 12px;
+    .recycleBtn {
+      width: 100%;
+      justify-content: flex-start;
+    }
   }
 }
 
