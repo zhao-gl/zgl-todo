@@ -19,3 +19,36 @@ time, mark, audio, video {
 @font-face {
   font-family: '微软雅黑, Helvetica Neue, Helvetica, Arial, sans-serif';
 }
+/* 禁止全局文本选择 */
+* {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* 恢复可编辑元素的选择能力 */
+input,
+textarea,
+[contenteditable],
+[contenteditable="true"] {
+  -webkit-user-select: auto !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  cursor: text;
+}
+
+/* 如果你用了常见 UI 库，补充以下选择器 */
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-textarea,
+.el-input__inner,
+.el-textarea__inner,
+.v-input__control,
+.v-text-field__slot input,
+.v-textarea textarea {
+  -webkit-user-select: auto !important;
+  user-select: text !important;
+}

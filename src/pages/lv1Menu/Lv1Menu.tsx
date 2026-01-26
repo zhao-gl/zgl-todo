@@ -1,45 +1,48 @@
-import GlobalHeader from "@/components/globalHeader/GloablHeader";
-import styles from "./style.module.less";
-import {useEffect, useState} from "react";
-import {Tabs} from "antd";
-import {Lv1Tab} from "@/types/lv1Menu"
-import {CarryOutOutlined, CheckCircleOutlined, CheckSquareOutlined, SettingOutlined} from "@ant-design/icons";
+import { useSearchParams } from 'react-router-dom';
+import GlobalHeader from "@/components/globalHeader/GloablHeader.tsx";
 
 const Lv1Menu = () => {
-  const [tabs, setTabs] = useState<Lv1Tab[]>([]);
-  const [activeKey, setActiveKey] = useState("1");
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const tabList = [
+    {
+      key: "tab1",
+      tab: "选项1",
+    },
+    {
+      key: "tab2",
+      tab: "选项2",
+    },
+    {
+      key: "tab3",
+      tab: "选项3",
+    },
+  ];
 
-  useEffect(() => {
-    const tabs = [
-      {
-        label: '1',
-        key: "1",
-        icon: <CheckSquareOutlined />
-      },
-      {
-        label: '2',
-        key: "2",
-        icon: <CarryOutOutlined />
-      },
-      {
-        label: '9',
-        key: "9",
-        icon: <SettingOutlined />
-      },
-    ];
-    setTabs(tabs);
-    setActiveKey("1")
-  }, []);
+  const handleTabClick = (key: string) => {
+    setSearchParams({ tab: key });
+  };
+
   return (
     <>
       <GlobalHeader />
-      <div className={styles.Container}>
-        <Tabs
-          activeKey={activeKey}
-          tabPlacement='start'
-          items={tabs?.map((value: Lv1Tab) => value)}
-          onChange={(key) => setActiveKey(key)}
-        />
+      <div>
+        <ul>
+          {tabList.map((item) => (
+            <li 
+              key={item.key} 
+              onClick={() => handleTabClick(item.key)}
+              style={{ 
+                cursor: 'pointer', 
+                padding: '8px', 
+                borderBottom: '1px solid #eee',
+                backgroundColor: searchParams.get('tab') === item.key ? '#e6f7ff' : 'white'
+              }}
+            >
+              {item.tab}
+            </li>
+          ))}
+        </ul>
       </div>
     </>
   );

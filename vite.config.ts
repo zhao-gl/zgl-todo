@@ -21,9 +21,9 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       less: {
-        // Less 配置选项
         math: 'always',
         javascriptEnabled: true,
+        additionalData: `@import "@/styles/variables.less";` // 全局变量
       },
     },
   }
