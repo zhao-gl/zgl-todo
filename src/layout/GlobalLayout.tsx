@@ -3,16 +3,25 @@ import React from "react";
 const { Sider, Content } = Layout;
 import styles from "./globalLayout.module.less"
 import Lv1Menu from "@/pages/lv1Menu/Lv1Menu";
-import Main from "@/pages/main/Main";
+import {Outlet} from "react-router-dom";
+import GlobalHeader from "@/components/globalHeader/GloablHeader.tsx";
 
 const GlobalLayout = () => {
   return (
     <Layout className={styles.layoutStyle}>
-      <Sider theme={'light'} className={styles.siderStyle} width={300}>
+      <Sider
+        width={232}
+        theme={'light'}
+        className={styles.siderStyle}
+      >
+        <GlobalHeader />
         <Lv1Menu />
       </Sider>
       <Content className={styles.contentStyle}>
-        <Main />
+        <GlobalHeader hasControl={true} />
+        <div className={styles.outletContainer}>
+          <Outlet />
+        </div>
       </Content>
     </Layout>
   );

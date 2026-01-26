@@ -6,8 +6,10 @@ const isMac = process.platform === 'darwin';
 // 创建主窗口
 function createWindow () {
   const mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 700,
+    width: 1200,
+    height: 800,
+    minWidth: 800,
+    minHeight: 600,
     frame: false, // 移除默认的菜单栏
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

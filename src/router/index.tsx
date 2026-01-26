@@ -1,7 +1,10 @@
-import { createBrowserRouter } from 'react-router-dom';
+import {createBrowserRouter, Navigate, RouteObject} from 'react-router-dom';
 import App from '../App';
-import Lv1Menu from "@/pages/lv1Menu/Lv1Menu.tsx";
-import Main from "@/pages/main/Main.tsx";
+import GlobalLayout from "@/layout/GlobalLayout";
+import TodoList from "@/pages/todoList/TodoList";
+import Overview from "@/pages/overview/Overview";
+import Collect from "@/pages/collect/Collect";
+import {CarryOutOutlined, InboxOutlined, SunOutlined} from "@ant-design/icons";
 
 const router = createBrowserRouter([
   {
@@ -9,17 +12,70 @@ const router = createBrowserRouter([
     element: <App/>,
     children: [
       {
-        path: '/',
-        element: <Lv1Menu />,
+        path: '/menu',
+        element: <GlobalLayout />,
         children: [
           {
-            path: 'main',
-            element: <Main />,
+            path: '/menu/todo',
+            element: <TodoList />,
+            handle: {
+              title: '今日待办',
+              icon: <SunOutlined />,
+            }
           },
+          {
+            path: '/menu/view',
+            element: <Overview />,
+            handle: {
+              title: '日程概览',
+              icon: <CarryOutOutlined />
+            }
+          },
+          {
+            path: '/menu/collect',
+            element: <Collect />,
+            handle: {
+              title: '收集箱',
+              icon: <InboxOutlined />
+            }
+          },
+          {
+            path: '',
+            element: <Navigate to="todo" replace />
+          }
         ],
+      },
+      {
+        path: '',
+        element: <Navigate to="/menu" replace />
+      },
+      {
+        path: '*',
+        element: <Navigate to="/menu" replace />
       }
     ],
   },
 ]);
 
-export default router;
+// 获取菜单子路由
+const getTargetRoute = (path: string, route?: RouteObject): RouteObject | undefined => {
+  if(!route){
+    route = router.routes[0]
+  }
+  if(route.path === path) return route
+  // 递归查找子路由
+  if (route.children) {
+    for (const child of route.children) {
+      const found: RouteObject |  undefined = getTargetRoute(path, child);
+      if (found) {
+        return found;
+      }
+    }
+  }
+  return undefined
+}
+
+export {
+  router,
+  getTargetRoute
+}
