@@ -10,57 +10,65 @@ const Lv1Menu = () => {
   const location = useLocation();
   const [tabList, setTabList] = useState<RouteObject[]>([])
   const [tagList, setTagList] = useState<any[]>([])
+  const [currentMenu, setCurrentMenu] = useState<string>('')
 
   // 点击tab
   const handleTabClick = (path: string = '') => {
-    console.log(location.pathname, path)
+    setCurrentMenu(path)
     if(!path) return
-    // 使用相对路径导航到子路由
     navigate(path, { replace: false });
+  };
+
+  // 点击标签
+  const handleTagClick = (tag: string) => {
+    setCurrentMenu(tag)
+    navigate({
+      pathname: '/menu/tag',
+      search: `?tag=${encodeURIComponent(tag)}`
+    }, {replace: false});
+  };
+
+  // 点击回收站
+  const handleRecycleClick = () => {
+    setCurrentMenu('recycle')
+    navigate('/menu/recycle', { replace: false });
   };
 
   useEffect(() => {
     setTabList(getTargetRoute('/menu')?.children?.filter(child => child.path && child.path !== '') || [])
-    setTagList([
-      {
-        tag: '标签1',
-        color: 'red'
-      },
-      {
-        tag: '标签2',
-        color: 'blue'
-      },
-      {
-        tag: '标签3',
-        color: 'green'
-      },
-      {
-        tag: '标签4',
-        color: 'yellow'
-      },
-      {
-        tag: '标签5',
-        color: '#999'
-      },
-      {}
-    ])
+    setTagList(() => {
+      const newTagList = [];
+      for (let i = 0; i < 20; i++) {
+        const tag = {
+          tag: `标签${i}`,
+          color: `#${Math.floor(Math.random() * 0xffffff).toString(16)}`
+        }
+        newTagList.push(tag);
+      }
+      return newTagList;
+    })
   }, [])
+  useEffect(() => {
+    console.log(currentMenu)
+  }, [currentMenu])
 
   return (
     <div className={styles.lv1Menu}>
+      {/*用户区域*/}
       <div className={styles.user}>
         <Avatar size={32} icon={<UserOutlined />} style={{marginRight: 16}} />
         <div className={styles.username}>zhaogl</div>
         <div className={styles.more}><MoreOutlined /></div>
       </div>
       <Divider/>
+      {/*菜单区域*/}
       <div className={styles.tab}>
         {tabList.map((item) => (
           <Button
             type="text"
             onClick={() => handleTabClick(item.path)}
             key={item.id}
-            className={location.pathname === item.path ? styles.active : ''}
+            className={currentMenu === item.path ? styles.activeMenu : ''}
           >
             {item.handle?.icon}
             {item.handle?.title}
@@ -68,19 +76,30 @@ const Lv1Menu = () => {
         ))}
       </div>
       <Divider/>
+      {/*标签区域*/}
       <div className={styles.tag}>
         <div className={styles.tagTitle}>标签</div>
-        <div className={styles.tagList}>
+        <div className={`${styles.tagList} custom-scrollbar`}>
           {tagList.map((item) => (
-            <Button type="text" className={styles.tagItem}>
+            <Button
+              type="text"
+              className={currentMenu === item.tag ? styles.activeMenu : ''}
+              key={item.tag}
+              onClick={() => handleTagClick(item.tag)}
+            >
               <div className={styles.tagColor} style={{backgroundColor: item.color}} />
               {item.tag}
             </Button>
           ))}
         </div>
       </div>
+      {/*回收站区域*/}
       <div className={styles.recycle}>
-        <Button type="text" className={styles.recycleBtn}>
+        <Button
+          type="text"
+          className={currentMenu === 'recycle' ? styles.activeMenu : ''}
+          onClick={() => handleRecycleClick()}
+        >
           <DeleteOutlined />
           回收站
         </Button>

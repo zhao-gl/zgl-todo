@@ -1,10 +1,13 @@
 import {createBrowserRouter, Navigate, RouteObject} from 'react-router-dom';
+import {CarryOutOutlined, InboxOutlined, PieChartOutlined, SunOutlined} from "@ant-design/icons";
 import App from '../App';
 import GlobalLayout from "@/layout/GlobalLayout";
 import TodoList from "@/pages/todoList/TodoList";
 import Overview from "@/pages/overview/Overview";
 import Collect from "@/pages/collect/Collect";
-import {CarryOutOutlined, InboxOutlined, SunOutlined} from "@ant-design/icons";
+import TagView from "@/pages/tagView/TagView.tsx";
+import Recycle from "@/pages/recycle/Recycle.tsx";
+import Statistics from "@/pages/statistics/Statistics.tsx";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +41,26 @@ const router = createBrowserRouter([
               title: '收集箱',
               icon: <InboxOutlined />
             }
+          },
+          // {
+          //   path: '/menu/statistics',
+          //   element: <Statistics />,
+          //   handle: {
+          //     title: '数据统计',
+          //     icon: <PieChartOutlined />
+          //   }
+          // },
+          {
+            path: '/menu/tag',
+            element: <TagView />,
+            handle: {
+              // title: '收集箱',
+              // icon: <InboxOutlined />
+            }
+          },
+          {
+            path: '/menu/recycle',
+            element: <Recycle />,
           },
           {
             path: '',

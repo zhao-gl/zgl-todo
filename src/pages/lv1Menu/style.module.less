@@ -35,9 +35,6 @@
       width: 100%;
       justify-content: flex-start;
     }
-    .active {
-      background-color: #f5f5f5;
-    }
   }
   .tag {
     width: 100%;
@@ -50,11 +47,12 @@
       margin-bottom: 12px;
     }
     .tagList {
-      //margin-left: 14px;
-    }
-    .tagItem{
-      width: 100%;
-      justify-content: flex-start;
+      height: 90%;
+      overflow-y: auto;
+      button {
+        width: 100%;
+        justify-content: flex-start;
+      }
     }
     .tagColor {
       width: 12px;
@@ -65,10 +63,13 @@
   }
   .recycle {
     padding: 12px;
-    .recycleBtn {
+    button {
       width: 100%;
       justify-content: flex-start;
     }
+  }
+  .activeMenu {
+    background-color: #f5f5f5;
   }
 }
 
