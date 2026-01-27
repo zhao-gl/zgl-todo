@@ -17,7 +17,7 @@ const GlobalLayout = () => {
         <GlobalHeader />
         <Lv1Menu />
       </Sider>
-      <Content className={styles.contentStyle}>
+      <Content>
         <GlobalHeader hasControl={true} />
         <div className={styles.outletContainer}>
           <Outlet />

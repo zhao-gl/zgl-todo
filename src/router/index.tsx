@@ -53,10 +53,6 @@ const router = createBrowserRouter([
           {
             path: '/menu/tag',
             element: <TagView />,
-            handle: {
-              // title: '收集箱',
-              // icon: <InboxOutlined />
-            }
           },
           {
             path: '/menu/recycle',

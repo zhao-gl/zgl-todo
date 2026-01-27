@@ -10,7 +10,7 @@ const Lv1Menu = () => {
   const location = useLocation();
   const [tabList, setTabList] = useState<RouteObject[]>([])
   const [tagList, setTagList] = useState<any[]>([])
-  const [currentMenu, setCurrentMenu] = useState<string>('')
+  const [currentMenu, setCurrentMenu] = useState<string>('/menu/todo')
 
   // 点击tab
   const handleTabClick = (path: string = '') => {
@@ -35,7 +35,11 @@ const Lv1Menu = () => {
   };
 
   useEffect(() => {
-    setTabList(getTargetRoute('/menu')?.children?.filter(child => child.path && child.path !== '') || [])
+    setTabList(getTargetRoute('/menu')
+      ?.children
+      ?.filter(child => {
+        return child.path && child.path !== '' && child.handle
+      }) || [])
     setTagList(() => {
       const newTagList = [];
       for (let i = 0; i < 20; i++) {
@@ -48,9 +52,6 @@ const Lv1Menu = () => {
       return newTagList;
     })
   }, [])
-  useEffect(() => {
-    console.log(currentMenu)
-  }, [currentMenu])
 
   return (
     <div className={styles.lv1Menu}>
