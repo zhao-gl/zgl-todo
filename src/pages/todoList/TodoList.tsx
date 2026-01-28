@@ -4,6 +4,7 @@ import React, {useEffect, useState} from "react";
 import {TodoItem} from "@/types/todoList";
 import TodoCenter from "@/pages/todoList/components/TodoCenter.tsx";
 import TodoSetting from "@/pages/todoList/components/TodoSetting.tsx";
+import {PlusOutlined} from "@ant-design/icons";
 
 const TodoList = () => {
   const [todoList, setTodoList] = useState<TodoItem[]>([])
@@ -37,7 +38,8 @@ const TodoList = () => {
     <div className={styles.todoContainer}>
       {/*工具栏区域*/}
       <div className={styles.toolBar}>
-
+        <h3>今日待办</h3>
+        <div className={styles.toolBarOther}>其他工具</div>
       </div>
       {/*输入区域*/}
       <div>
@@ -47,6 +49,7 @@ const TodoList = () => {
           value={todoInputVal}
           className={styles.todoInput}
           placeholder='请输入待办事项'
+          prefix={<PlusOutlined style={{width: '16px', height: '16px', color: '#666', opacity: 0.3}} />}
           onChange={(e) => setTodoInputVal(e.target.value)}
           onKeyDown={(e) => handleEnter(e)}
         />

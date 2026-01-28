@@ -79,7 +79,10 @@ const Lv1Menu = () => {
       <Divider/>
       {/*标签区域*/}
       <div className={styles.tag}>
-        <div className={styles.tagTitle}>标签</div>
+        <div className={styles.tagTitle}>
+          <div>标签</div>
+          <div className={styles.tagSettingBtn}><a href="#">管理</a></div>
+        </div>
         <div className={`${styles.tagList} custom-scrollbar`}>
           {tagList.map((item) => (
             <Button
@@ -94,6 +97,7 @@ const Lv1Menu = () => {
           ))}
         </div>
       </div>
+      <Divider/>
       {/*回收站区域*/}
       <div className={styles.recycle}>
         <Button
