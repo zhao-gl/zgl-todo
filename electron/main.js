@@ -1,5 +1,6 @@
-const { app, ipcMain, BrowserWindow, Menu } = require('electron')
+const { app, ipcMain, BrowserWindow } = require('electron')
 const path = require('path')
+const {setupIPC, setIpcEventListener } = require('./ipc/ipc');
 
 const isMac = process.platform === 'darwin';
 
@@ -27,12 +28,20 @@ function createWindow () {
   }
 }
 
-// 应用程序就绪后,创建主窗口并激活事件监听器
+// 应用程序就绪后,创建主窗口
 app.whenReady().then(() => {
-  createWindow()
-  app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
+  // ===================== WINDOW =====================
+  createWindow();
+  // ===================== IPC =====================
+  setImmediate(() => {
+    setupIPC();
+    setIpcEventListener();
+  });
+})
+
+// 监听应用程序激活事件（在macOS上，当没有打开的窗口时，重新创建一个窗口）
+app.on('activate', function () {
+  if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
 
 // 监听窗口全部关闭事件（在非macOS平台上退出应用程序）
@@ -40,31 +49,5 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
 })
 
-// 获取发送事件的窗口实例
-function getWindowFromEvent(event) {
-  return BrowserWindow.fromWebContents(event.sender);
-}
 
-// 监听-关闭窗口
-ipcMain.on('window-close', (event) => {
-  const win = getWindowFromEvent(event);
-  if (win) win.close();
-});
 
-// 监听-最小化窗口
-ipcMain.on('window-minimize', (event) => {
-  const win = getWindowFromEvent(event);
-  if (win) win.minimize();
-});
-
-// 监听-最大化窗口
-ipcMain.on('window-maximize', (event) => {
-  const win = getWindowFromEvent(event);
-  if (win) {
-    if (win.isMaximized()) {
-      win.unmaximize();
-    } else {
-      win.maximize();
-    }
-  }
-});

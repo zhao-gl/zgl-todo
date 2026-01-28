@@ -1,5 +1,0 @@
-onlyBuiltDependencies:
-ignoredBuiltDependencies:
-  - '@swc/core'
-  - electron
-  - esbuild

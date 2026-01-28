@@ -15,3 +15,9 @@
 2. 解压放到 \node_modules\.pnpm\electron@40.0.0\node_modules\electron\dist\ 
 3. 在 \node_modules\.pnpm\electron@40.0.0\node_modules\electron\ 创建一个 path.txt 文件
 4. path.txt 文件写入 electron.exe
+
+**better-sqlite3 编译问题**
+1. 与原生node不兼容, 需要重新编译
+```bash
+  pnpm exec electron-rebuild -w better-sqlite3 -v 40.0.0 -p
+```

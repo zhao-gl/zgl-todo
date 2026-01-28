@@ -7,5 +7,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   maximizeWindow: () => ipcRenderer.send('window-maximize'), // 添加最大化窗口的 API
   closeWindow: () => ipcRenderer.send('window-close'), // 添加关闭窗口的 API
 
+  // ===================== DB API =====================
+  query: (sql, params) => ipcRenderer.invoke('db-query', sql, params),
+
   getAppVersion: () => process.env.npm_package_version
 })

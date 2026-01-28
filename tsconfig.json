@@ -2,7 +2,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "react-jsx",        // 必须！支持 JSX 语法
+    "module": "ES2022",
     "moduleResolution": "bundler", // 或 "node"（旧项目）
+    "noEmit": true,
     "allowImportingTsExtensions": true, // 允许 import .ts/.tsx（Vite/现代工具推荐）
     "esModuleInterop": true,
     "strict": true,
@@ -18,7 +20,6 @@
   ],
   "files": [],
   "references": [
-    { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
   ]
 }
