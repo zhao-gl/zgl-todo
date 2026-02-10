@@ -30,9 +30,12 @@ const TodoList = () => {
     // setTodoInputVal('')
   }, [todoList])
 
-  setTimeout(() => {
-    setNowTime(new Date().toLocaleTimeString())
-  }, 1000)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setNowTime(new Date().toLocaleTimeString())
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
     <div className={styles.todoContainer}>

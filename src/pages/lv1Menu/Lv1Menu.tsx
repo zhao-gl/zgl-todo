@@ -42,7 +42,7 @@ const Lv1Menu = () => {
       }) || [])
     setTagList(() => {
       const newTagList = [];
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 5; i++) {
         const tag = {
           tag: `标签${i}`,
           color: `#${Math.floor(Math.random() * 0xffffff).toString(16)}`

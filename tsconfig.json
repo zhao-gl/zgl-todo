@@ -5,7 +5,7 @@
     "module": "ES2022",
     "moduleResolution": "bundler", // 或 "node"（旧项目）
     "noEmit": true,
-    "allowImportingTsExtensions": true, // 允许 import .ts/.tsx（Vite/现代工具推荐）
+    "allowImportingTsExtensions": false, // 允许 import .ts/.tsx（Vite/现代工具推荐）
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
@@ -18,8 +18,5 @@
     "src",
     "src/**/*"   // 确保包含 src/types/
   ],
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.node.json" }
-  ]
+  "exclude": ["node_modules", "dist", "**/*.test.ts"],
 }

@@ -1,18 +1,5 @@
 const {ipcMain, BrowserWindow} = require("electron");
-const {initDB, query} = require("../db/db");
-
-// 设置 IPC 处理函数
-function setupIPC() {
-  ipcMain.handle('db-query', async (event, sql, params = []) => {
-    try {
-      initDB(); // 确保数据库已打开
-      return query(sql, params);
-    } catch (err) {
-      console.error('Database error:', err.message);
-      throw err;
-    }
-  });
-}
+// const {initDB, query} = require("../db/db");
 
 // 设置ipc事件监听器
 function setIpcEventListener() {
@@ -47,6 +34,5 @@ function getWindowFromEvent(event) {
 }
 
 module.exports = {
-  setupIPC,
   setIpcEventListener
 }

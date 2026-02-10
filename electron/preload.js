@@ -8,7 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeWindow: () => ipcRenderer.send('window-close'), // 添加关闭窗口的 API
 
   // ===================== DB API =====================
-  query: (sql, params) => ipcRenderer.invoke('db-query', sql, params),
+  // query: (sql, params) => ipcRenderer.invoke('db-query', sql, params),
 
-  getAppVersion: () => process.env.npm_package_version
+  // getAppVersion: () => process.env.npm_package_version
 })
