@@ -4,7 +4,7 @@ const { Sider, Content } = Layout;
 import styles from "./globalLayout.module.less"
 import Lv1Menu from "@/pages/lv1Menu/Lv1Menu";
 import {Outlet} from "react-router-dom";
-import GlobalHeader from "@/components/globalHeader/GloablHeader.tsx";
+import GlobalHeader from "@/components/globalHeader/GloablHeader";
 
 const GlobalLayout = () => {
   return (

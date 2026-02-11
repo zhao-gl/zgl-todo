@@ -1,5 +1,7 @@
 {
   "name": "zgl-todo",
+  "description": "待办工具",
+  "author": "zhaogl",
   "private": true,
   "version": "1.0.0",
   "main": "electron/main.js",
@@ -9,7 +11,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "electron:dev": "concurrently \"vite dev\" \"wait-on http://127.0.0.1:3000 && electron .\"",
-    "electron:build": "npm run build && electron-builder"
+    "electron:build": "npm run build && electron-builder --config electron-builder.config.js",
+    "electron:build:win": "npm run build && electron-builder --config electron-builder.config.js --win",
+    "electron:build:mac": "npm run build && electron-builder --config electron-builder.config.js --mac",
+    "electron:build:linux": "npm run build && electron-builder --config electron-builder.config.js --linux",
+    "debug:build": "node debug-build.js"
   },
   "dependencies": {
     "@ant-design/icons": "~6.1.0",
@@ -41,39 +47,5 @@
   "engines": {
     "node": ">=22.0.0",
     "npm": ">=10.0.0"
-  },
-  "build": {
-    "appId": "com.zgl.todo",
-    "productName": "zgl-todo",
-    "directories": {
-      "output": "dist_electron"
-    },
-    "files": [
-      "electron/**/*",
-      "dist/**/*"
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ]
-    },
-    "mac": {
-      "target": [
-        "dmg",
-        "zip"
-      ]
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb",
-        "rpm"
-      ]
-    }
   }
 }

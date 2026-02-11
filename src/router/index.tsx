@@ -5,9 +5,9 @@ import GlobalLayout from "@/layout/GlobalLayout";
 import TodoList from "@/pages/todoList/TodoList";
 import Overview from "@/pages/overview/Overview";
 import Collect from "@/pages/collect/Collect";
-import TagView from "@/pages/tagView/TagView.tsx";
-import Recycle from "@/pages/recycle/Recycle.tsx";
-import Statistics from "@/pages/statistics/Statistics.tsx";
+import TagView from "@/pages/tagView/TagView";
+import Recycle from "@/pages/recycle/Recycle";
+import Statistics from "@/pages/statistics/Statistics";
 
 const router = createBrowserRouter([
   {

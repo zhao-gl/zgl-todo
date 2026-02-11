@@ -2,8 +2,8 @@ import {Input} from "antd";
 import styles from "./style.module.less"
 import React, {useEffect, useState} from "react";
 import {TodoItem} from "@/types/todoList";
-import TodoCenter from "@/pages/todoList/components/TodoCenter.tsx";
-import TodoSetting from "@/pages/todoList/components/TodoSetting.tsx";
+import TodoCenter from "@/pages/todoList/components/TodoCenter";
+import TodoSetting from "@/pages/todoList/components/TodoSetting";
 import {PlusOutlined} from "@ant-design/icons";
 
 const TodoList = () => {
