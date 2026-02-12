@@ -2,6 +2,8 @@
  * Electron Builder 配置文件
  * 用于打包 Electron 应用程序
  */
+const path = require('path');
+const fs = require('fs-extra');
 
 module.exports = {
   // 应用基本信息
@@ -12,7 +14,7 @@ module.exports = {
   // 输出目录配置
   directories: {
     output: 'dist_electron',
-    buildResources: 'build'
+    buildResources: 'build' // 构建资源目录
   },
 
   // 要包含的文件
@@ -21,7 +23,16 @@ module.exports = {
     'dist/**/*',
     '!**/*.pdb', // 移除调试符号
     '!**/*.debug',
-    '!**/debug/**'
+    '!**/debug/**',
+    '!**/*.map', // 移除 sourcemap
+    '!**/*.ts', // 移除源码
+    '!**/*.md',
+    '!**/LICENSE*',
+    '!**/README*',
+    '!**/__tests__/**/*',
+    '!**/test/**/*',
+    '!**/*.spec.*',
+    '!**/*.test.*'
   ],
 
   compression: 'maximum', // 启用最高级别压缩
@@ -29,18 +40,7 @@ module.exports = {
   asarUnpack: ['**/*.node'], // 只解包原生模块
 
   // 额外资源（语言包过滤）
-  extraResources: [
-    {
-      from: 'node_modules/electron/dist/resources/',
-      to: 'resources/',
-      filter: [
-        'default_app.asar',
-        'locales/en-US.pak',
-        'locales/zh-CN.pak',
-        '!locales/**'  // 排除其他语言包
-      ]
-    }
-  ],
+  extraResources: [],
 
   // Windows 配置
   win: {
@@ -48,27 +48,24 @@ module.exports = {
       {
         target: 'nsis',
         arch: ['x64']
-      },
-      {
-        target: 'portable',
-        arch: ['x64']
       }
     ],
     icon: 'build/icon.ico',
     publisherName: 'zhaogl',
-    verifyUpdateCodeSignature: false
+    signingHashAlgorithms: ['sha256'],
+    // 时间戳服务器（防止证书过期后无法验证）
+    timeStampServer: 'https://timestamp.digicert.com'
   },
 
   // NSIS 安装包配置
   nsis: {
-    oneClick: false,
-    allowToChangeInstallationDirectory: true,
-    createDesktopShortcut: true,
-    createStartMenuShortcut: true,
-    shortcutName: 'zgl-todo',
-    uninstallDisplayName: 'zgl-todo',
-    license: 'build/license.txt',
-    artifactName: '${productName}-${version}-setup.${ext}'
+    oneClick: false, // 禁用一键安装
+    allowToChangeInstallationDirectory: true, // 允许用户更改安装目录
+    createDesktopShortcut: true, // 创建桌面快捷方式
+    createStartMenuShortcut: true, // 创建启动菜单快捷方式
+    shortcutName: 'zgl-todo', // 桌面快捷方式的名称
+    uninstallDisplayName: 'zgl-todo', // 卸载时显示的名称
+    artifactName: '${productName}-${version}-setup.${ext}', // 安装包名称
   },
 
   // macOS 配置
@@ -115,33 +112,36 @@ module.exports = {
     vendor: 'zhaogl'
   },
 
-  // AppImage 配置
-  appImage: {
-    artifactName: '${productName}-${version}.${ext}'
-  },
-
-  // Deb 包配置
-  deb: {
-    artifactName: '${productName}-${version}-${arch}.${ext}',
-    depends: ['libgtk-3-0', 'libnotify4', 'libnss3', 'libxss1', 'libxtst6', 'xdg-utils']
-  },
-
-  // RPM 包配置
-  rpm: {
-    artifactName: '${productName}-${version}-${arch}.${ext}'
-  },
-
   // 发布配置
-  publish: {
-    provider: 'github',
-    releaseType: 'release'
-  },
+  // publish: {
+  //   provider: 'github',
+  //   releaseType: 'release'
+  // },
 
   // 构建钩子函数
   afterPack: async (context) => {
-    console.log('开始构建 Electron 应用...');
-    console.log(`版本: ${context.packager.appInfo.version}`);
-    // console.log(`平台: ${context.platform.nodeName}`);
+    const { appOutDir } = context;
+    const localesDir = path.join(appOutDir, 'locales');
+
+    if (fs.existsSync(localesDir)) {
+      console.log('🔍 清理不需要的语言包...');
+      const keepLocales = ['en-US.pak', 'zh-CN.pak'];
+      const allFiles = await fs.readdir(localesDir);
+      let removedCount = 0;
+      for (const file of allFiles) {
+        if (!keepLocales.includes(file)) {
+          try {
+            await fs.remove(path.join(localesDir, file));
+            removedCount++;
+          } catch (error) {
+            console.warn(`⚠️ 无法删除 ${file}:`, error.message);
+          }
+        }
+      }
+      console.log(`✅ 清理完成！删除了 ${removedCount} 个语言包文件`);
+    }
+
+    await removeUnnecessaryFiles(appOutDir); // 删除多余文件
   },
 
   afterAllArtifactBuild: async (context) => {
@@ -149,3 +149,24 @@ module.exports = {
     console.log(`输出目录: ${context.outDir}`);
   }
 };
+
+
+// 辅助函数
+async function removeUnnecessaryFiles(appOutDir) {
+  const filesToRemove = [
+    // 'blink_image_resources_200_percent.pak', // 高dpi缩放资源
+    'content_shell.pak', // 测试用 shell
+    // "ffmpeg.dll", // 音视频
+    // 'vk_swiftshader.dll', // webGL/3D
+    // 'vk_swiftshader_icd.json', // webGL/3D
+    // 'vulkan-1.dll' // webGL/3D
+  ];
+
+  for (const file of filesToRemove) {
+    const filePath = path.join(appOutDir, file);
+    if (fs.existsSync(filePath)) {
+      await fs.unlink(filePath);
+      console.log(`✅ 删除了: ${file}`);
+    }
+  }
+}

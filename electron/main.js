@@ -40,7 +40,8 @@ function createWindow () {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
-      contextIsolation: true
+      contextIsolation: true,
+      // devTools: false
     }
   })
 
@@ -48,10 +49,20 @@ function createWindow () {
     // 生产环境：加载本地 dist 文件
     console.log('生产环境：加载本地 dist 文件');
     startTimer('load-dist-file');
-    mainWindow.loadFile(path.join(__dirname, './index.html'));
-    console.log('窗口已显示');
+    mainWindow.loadFile('./dist/index.html');
     mainWindow.show();
+    mainWindow.webContents.openDevTools();
     endTimer('load-dist-file');
+    // 防止通过快捷键打开
+    // mainWindow.webContents.on('before-input-event', (event, input) => {
+    //   // 禁用 F12、Ctrl+Shift+I、Ctrl+Shift+J 等 DevTools 快捷键
+    //   if (input.control && input.shift && (input.key === 'I' || input.key === 'J')) {
+    //     event.preventDefault();
+    //   }
+    //   if (input.key === 'F12') {
+    //     event.preventDefault();
+    //   }
+    // });
   } else {
     // 开发环境：加载 Vite 开发服务器
     console.log('开发环境：加载 Vite 开发服务器');
