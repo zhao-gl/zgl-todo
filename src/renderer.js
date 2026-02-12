@@ -1,8 +1,8 @@
-// src/renderer.js
+
 // 添加窗口控制按钮事件监听
 let retryCount = 0;
 const maxRetry = 10;
-
+// 绑定窗口控制按钮事件
 const bindControlBtn = () => {
   const minBtn = document.getElementById('window-min-btn');
   const maxBtn = document.getElementById('window-max-btn');
@@ -26,10 +26,17 @@ const bindControlBtn = () => {
     }
   }
 };
-
 // 等待 DOM 加载完成后再绑定
 if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', bindControlBtn);
 }else{
   bindControlBtn();
 }
+
+
+// 绑定数据库操作事件
+// const bindDBEvent = () => {
+//   bindDBEvent();
+// }
+
+

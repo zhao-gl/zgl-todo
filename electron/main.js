@@ -2,6 +2,7 @@ const { app, ipcMain, BrowserWindow } = require('electron')
 const path = require('path')
 const {setupIPC, setIpcEventListener } = require('./ipc/ipc');
 const { performance } = require('perf_hooks');
+const {getInstance} = require("./db/db");
 // 关键：禁用所有策略加载（组策略 + 注册表策略）
 app.commandLine.appendSwitch('disable-policy-key');
 app.commandLine.appendSwitch('no-experiments');
@@ -26,11 +27,13 @@ function endTimer(name) {
 }
 
 console.log('应用程序启动');
+let mainWindow;
+let db;
 const isMac = process.platform === 'darwin';
 // 创建主窗口
 function createWindow () {
   console.log('正在创建主窗口');
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     minWidth: 800,
@@ -113,7 +116,10 @@ function createWindow () {
 app.whenReady().then(async () => {
   startTimer('app-ready-to-create-window');
   console.log('Electron 应用程序已就绪');
-
+  console.log('开始初始化数据库');
+  // 初始化数据库
+  db = getInstance();
+  console.log('初始化数据库完成');
   // ===================== IPC =====================
   console.log('开始设置 IPC 事件监听器');
   // setupIPC();
@@ -149,6 +155,10 @@ app.on('window-all-closed', function () {
   console.log('所有窗口已关闭');
   if (process.platform !== 'darwin') {
     console.log('非 macOS 平台，退出应用程序');
+    // 关闭数据库连接
+    if (db) {
+      db.close();
+    }
     app.quit()
   }
 })

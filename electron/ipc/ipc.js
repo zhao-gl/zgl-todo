@@ -1,5 +1,5 @@
 const {ipcMain, BrowserWindow} = require("electron");
-// const {initDB, query} = require("../db/db");
+const {query} = require("../db/db");
 
 // 设置ipc事件监听器
 function setIpcEventListener() {
@@ -9,13 +9,13 @@ function setIpcEventListener() {
     if (win) win.close();
   });
 
-// 监听-最小化窗口
+  // 监听-最小化窗口
   ipcMain.on('window-minimize', (event) => {
     const win = getWindowFromEvent(event);
     if (win) win.minimize();
   });
 
-// 监听-最大化窗口
+  // 监听-最大化窗口
   ipcMain.on('window-maximize', (event) => {
     const win = getWindowFromEvent(event);
     if (win) {
@@ -25,6 +25,12 @@ function setIpcEventListener() {
         win.maximize();
       }
     }
+  });
+
+  // 监听-获取数据库版本
+  ipcMain.handle('db-get-version', () => {
+    // return query('SELECT * FROM sqlite_master WHERE type="table" AND name="version"');
+    // return initDB();
   });
 }
 

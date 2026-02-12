@@ -1,48 +1,93 @@
-// const { app } = require('electron');
-// const Database = require('better-sqlite3');
-// const path = require('path');
-//
-// // 数据库存储路径（推荐放在 userData 目录）
-// // const dbPath = path.join(app.getPath('userData'), 'app.db');
-// let db;
-// let initPromise = null;
-//
-// async function initDB() {
-//   if (!db && !initPromise) {
-//     initPromise = _initializeDatabase();
-//   }
-//   await initPromise;
-//   return db;
-// }
-//
-// async function _initializeDatabase() {
-//   const dbPath = path.join(app.getPath('userData'), 'app.db');
-//   db = new Database(dbPath);
-//
-//   // 异步执行表初始化（虽然 better-sqlite3 是同步的）
-//   db.exec(`    CREATE TABLE IF NOT EXISTS todos (
-//       id INTEGER PRIMARY KEY AUTOINCREMENT,
-//       title TEXT NOT NULL,
-//       completed BOOLEAN DEFAULT 0
-//     )
-//   `);
-//
-//   return db;
-// }
-//
-// // 查询数据
-// function query(sql, params = []) {
-//   const stmt = db.prepare(sql);
-//   if (sql.trim().toUpperCase().startsWith('SELECT')) {
-//     return stmt.all(params);
-//   } else {
-//     const result = stmt.run(params);
-//     return { changes: result.changes, lastInsertRowid: result.lastInsertRowid };
-//   }
-// }
-//
-// module.exports = {
-//   db,
-//   initDB,
-//   query
-// }
+// src/database.js
+let dbInstance = null;
+
+class SQLiteDatabase {
+  static getInstance() {
+    if (!dbInstance) {
+      dbInstance = new SQLiteDatabase();
+    }
+    return dbInstance;
+  }
+
+  constructor() {
+    // 确保只在 Electron 主进程中初始化
+    if (typeof process === 'undefined' || process.type !== 'browser') {
+      throw new Error('Database can only be used in Electron main process');
+    }
+
+    const { app } = require('electron');
+    const Database = require('better-sqlite3');
+    const path = require('path');
+
+    const dbPath = path.join(app.getPath('userData'), 'zgl-todo.db');
+    this.db = new Database(dbPath);
+    this.init();
+  }
+
+  /**
+   * 初始化数据库
+   */
+  init() {
+    // 创建 users 表
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS tb_users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        nickname TEXT NOT NULL UNIQUE,
+        email TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    // 创建 todos 表
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS tb_todos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        completed BOOLEAN DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+  }
+
+  dbGetAllTodos() {
+    return this.db.prepare('SELECT * FROM tb_todos ORDER BY created_at DESC').all();
+  }
+
+  /**
+   * 添加待办事项
+   * @param title
+   * @returns {StatementResultingChanges}
+   */
+  dbAddTodo(title) {
+    return this.db.prepare('INSERT INTO tb_todos (title) VALUES (?)').run(title);
+  }
+
+  /**
+   * 获取用户
+   * @param id
+   * @returns {Record<string, SQLOutputValue>}
+   */
+  dbGetUser(id) {
+    return this.db.prepare('SELECT * FROM tb_users WHERE id = ?').get(id);
+  }
+
+  /**
+   * 添加用户
+   * @param username
+   * @param password
+   * @returns {StatementResultingChanges}
+   */
+  dbAddUser(username, password) {
+    const passwordHash = require('crypto').createHash('sha256').update(password).digest('hex');
+    return this.db.prepare(`INSERT INTO tb_users (username, password_hash) VALUES (?, ?)`).run(username, passwordHash);
+  }
+
+  close() {
+    if (this.db) {
+      this.db.close();
+    }
+  }
+}
+
+module.exports = SQLiteDatabase;
