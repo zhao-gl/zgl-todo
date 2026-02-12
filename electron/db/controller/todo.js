@@ -9,12 +9,12 @@ class TodoController {
   // 获取所有待办事项
   getAllTodos() {
     this.todoDao.dbGetAllTodos();
-    return responseTemplate(this.todoDao.dbGetAllTodos());
+    return this.todoDao.dbGetAllTodos();
   }
 
   // 添加待办事项
   addTodo(title) {
-    return responseTemplate(this.todoDao.dbAddTodo(title));
+    return this.todoDao.dbAddTodo(title);
   }
 }
 

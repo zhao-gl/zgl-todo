@@ -37,9 +37,12 @@ module.exports = {
 
   compression: 'maximum', // 启用最高级别压缩
   asar: true, // 启用 ASAR 打包
-  asarUnpack: ['**/*.node'], // 只解包原生模块
+  asarUnpack: [
+    '**/*.node',
+    '**/node_modules/.pnpm/better-sqlite3@*/**/*'
+  ],
 
-  // 额外资源（语言包过滤）
+  // 额外资源
   extraResources: [],
 
   // Windows 配置

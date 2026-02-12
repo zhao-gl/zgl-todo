@@ -44,7 +44,7 @@ function createWindow () {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
-      devTools: false
+      devTools: false // 生产禁用 DevTools
     }
   })
 
@@ -54,7 +54,6 @@ function createWindow () {
     startTimer('load-dist-file');
     mainWindow.loadFile('./dist/index.html');
     mainWindow.show();
-    mainWindow.webContents.openDevTools();
     endTimer('load-dist-file');
     // 防止通过快捷键打开
     mainWindow.webContents.on('before-input-event', (event, input) => {
@@ -71,11 +70,9 @@ function createWindow () {
     console.log('开发环境：加载 Vite 开发服务器');
     startTimer('load-vite-url');
     const url = 'http://127.0.0.1:3000';
-    console.log('开始加载 Vite 开发服务器 URL');
     // 为了改善用户体验，立即显示窗口，而不是等待页面加载完成
-    console.log('窗口已显示');
     mainWindow.show();
-
+    mainWindow.webContents.openDevTools();
     // 监听页面加载事件
     mainWindow.webContents.on('did-start-loading', () => {
       startTimer('page-loading');
@@ -98,16 +95,9 @@ function createWindow () {
     });
 
     mainWindow.loadURL(url).then(() => {
-      endTimer('load-vite-url');
       console.log('Vite 开发服务器 URL 加载成功');
     }).catch((error) => {
-      endTimer('load-vite-url');
       console.error('Vite 服务器连接失败:', error.message);
-      console.log("Vite 尚未就绪，等待重连...");
-      setTimeout(() => {
-        console.log('尝试重新连接到 Vite 服务器');
-        mainWindow.loadURL(url)
-      }, 2000);
     });
   }
 }

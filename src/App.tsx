@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import {Suspense, useEffect} from 'react';
 import { Outlet } from "react-router-dom";
 import { ConfigProvider } from 'antd';
 
@@ -8,6 +8,12 @@ function App() {
   const disabledMotion = {
     motion: false,
   };
+
+  useEffect(() => {
+    window?.electronAPI?.dbQuery('getUser', 1).then(res => {
+      console.log(res)
+    })
+  }, []);
 
   return (
     <ConfigProvider {...disabledMotion}>

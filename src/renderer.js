@@ -34,9 +34,3 @@ if(document.readyState === 'loading'){
 }
 
 
-// 绑定数据库操作事件
-// const bindDBEvent = () => {
-//   bindDBEvent();
-// }
-
-

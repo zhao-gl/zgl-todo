@@ -15,6 +15,7 @@
     "electron:build:win": "npm run build && electron-builder --config electron-builder.config.js --win",
     "electron:build:mac": "npm run build && electron-builder --config electron-builder.config.js --mac",
     "electron:build:linux": "npm run build && electron-builder --config electron-builder.config.js --linux",
+    "postinstall": "electron-builder install-app-deps",
     "debug:build": "node debug-build.js"
   },
   "dependencies": {
@@ -42,6 +43,7 @@
     "fs-extra": "^11.3.3",
     "globals": "^16.0.0",
     "less": "^4.5.1",
+    "prebuild-install": "^7.1.3",
     "rimraf": "^6.1.2",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.30.1",

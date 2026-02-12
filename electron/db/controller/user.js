@@ -8,7 +8,7 @@ class UserController {
 
   // 获取用户
   getUser(id) {
-    return responseTemplate(this.db.dbGetUser(id));
+    return this.db.dbGetUser(id);
   }
 
   /**
@@ -18,7 +18,7 @@ class UserController {
    * @returns {*}
    */
   addUser(username, password) {
-    return responseTemplate(this.db.dbAddUser(username, password));
+    return this.db.dbAddUser(username, password);
   }
 }
 
