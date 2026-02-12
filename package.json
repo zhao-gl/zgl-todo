@@ -22,11 +22,14 @@
     "@ant-design/icons": "~6.1.0",
     "antd": "^6.2.1",
     "better-sqlite3": "^12.6.2",
+    "bindings": "^1.5.0",
+    "file-uri-to-path": "^2.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.13.0"
   },
   "devDependencies": {
+    "@electron/fuses": "^2.0.0",
     "@electron/rebuild": "^4.0.3",
     "@eslint/js": "^9.25.0",
     "@types/antd": "^1.0.4",

@@ -16,6 +16,9 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    rollupOptions: {
+      external: ['better-sqlite3', 'bindings']
+    }
   },
   server: {
     host: '0.0.0.0',

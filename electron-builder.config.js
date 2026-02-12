@@ -4,6 +4,7 @@
  */
 const path = require('path');
 const fs = require('fs-extra');
+const { flipFuses, FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 module.exports = {
   // 应用基本信息
@@ -39,7 +40,12 @@ module.exports = {
   asar: true, // 启用 ASAR 打包
   asarUnpack: [
     '**/*.node',
-    '**/node_modules/.pnpm/better-sqlite3@*/**/*'
+    '**/better-sqlite3/**/*',        // 匹配任何位置的 better-sqlite3
+    '**/bindings/**/*',              // 匹配任何位置的 bindings
+    '**/file-uri-to-path/**/*',
+    // '**/node_modules/.pnpm/better-sqlite3@*/**/*',
+    // '**/node_modules/.pnpm/bindings@*/**/*',
+    // '**/node_modules/.pnpm/file-uri-to-path@*/**/*',
   ],
 
   // 额外资源
@@ -125,7 +131,7 @@ module.exports = {
   afterPack: async (context) => {
     const { appOutDir } = context;
     const localesDir = path.join(appOutDir, 'locales');
-
+    // 删除多余的语言包
     if (fs.existsSync(localesDir)) {
       console.log('🔍 清理不需要的语言包...');
       const keepLocales = ['en-US.pak', 'zh-CN.pak'];
@@ -143,6 +149,21 @@ module.exports = {
       }
       console.log(`✅ 清理完成！删除了 ${removedCount} 个语言包文件`);
     }
+    // 执行熔断操作
+    const ext = process.platform === 'win32' ? '.exe' : '';
+    const executableName = `zgl-todo${ext}`; // 对应你的 productName
+    await flipFuses(
+      path.join(context.appOutDir, executableName),
+      {
+        version: FuseVersion.V1,
+        [FuseV1Options.RunAsNode]: false, // 禁用 RunAsNode
+        [FuseV1Options.EnableCookieEncryption]: true,
+        [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
+        [FuseV1Options.EnableNodeCliInspectArguments]: false,
+        [FuseV1Options.OnlyLoadAppFromAsar]: true,
+      }
+    );
+    console.log('✅ 已成功烧断 Electron 熔断器 (Fuses)');
 
     await removeUnnecessaryFiles(appOutDir); // 删除多余文件
   },
@@ -164,7 +185,6 @@ async function removeUnnecessaryFiles(appOutDir) {
     // 'vk_swiftshader_icd.json', // webGL/3D
     // 'vulkan-1.dll' // webGL/3D
   ];
-
   for (const file of filesToRemove) {
     const filePath = path.join(appOutDir, file);
     if (fs.existsSync(filePath)) {

@@ -1,14 +1,17 @@
-const { app, ipcMain, BrowserWindow } = require('electron')
+const { app, Menu, BrowserWindow } = require('electron')
 const path = require('path')
-const {setupIPC, setIpcEventListener } = require('./ipc/ipc');
+const {setIpcEventListener} = require('./ipc/ipc');
 const { performance } = require('perf_hooks');
 const {getInstance} = require("./db/db");
 // 关键：禁用所有策略加载（组策略 + 注册表策略）
 app.commandLine.appendSwitch('disable-policy-key');
 app.commandLine.appendSwitch('no-experiments');
 app.commandLine.appendSwitch('ignore-certificate-errors'); // 忽略证书错误
-// 禁用 IndexedDB、WebSQL（如果应用不需要）
-app.commandLine.appendSwitch('disable-features', 'WebSQL,IndexedDB');
+// 禁用一些不必要的 Web 特性
+app.commandLine.appendSwitch('disable-http-cache'); // 禁用缓存
+app.commandLine.appendSwitch('disable-site-isolation-trials'); // 禁用站点隔离
+app.commandLine.appendSwitch('disable-features', 'WebSQL,IndexedDB'); // 禁用特定存储技术
+Menu.setApplicationMenu(null) // 彻底移除顶部菜单
 // 性能计时器
 const perfTimers = new Map();
 function startTimer(name) {
@@ -44,9 +47,11 @@ function createWindow () {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: true,
       devTools: false // 生产禁用 DevTools
     }
   })
+  mainWindow.webContents.setVisualZoomLevelLimits(1, 1); // 禁用Ctrl+/-缩放
 
   if (app.isPackaged) {
     // 生产环境：加载本地 dist 文件
@@ -72,7 +77,6 @@ function createWindow () {
     const url = 'http://127.0.0.1:3000';
     // 为了改善用户体验，立即显示窗口，而不是等待页面加载完成
     mainWindow.show();
-    mainWindow.webContents.openDevTools();
     // 监听页面加载事件
     mainWindow.webContents.on('did-start-loading', () => {
       startTimer('page-loading');
