@@ -3,15 +3,14 @@ const path = require('path')
 const {setIpcEventListener} = require('./ipc/ipc');
 const { performance } = require('perf_hooks');
 const {getInstance} = require("./db/db");
-// 关键：禁用所有策略加载（组策略 + 注册表策略）
-app.commandLine.appendSwitch('disable-policy-key');
-app.commandLine.appendSwitch('no-experiments');
+app.commandLine.appendSwitch('disable-policy-key'); // 禁用所有策略加载（组策略 + 注册表策略）
+app.commandLine.appendSwitch('no-experiments'); // 禁用实验性功能，防止不稳定或未正式发布的特性影响应用运行
 app.commandLine.appendSwitch('ignore-certificate-errors'); // 忽略证书错误
-// 禁用一些不必要的 Web 特性
 app.commandLine.appendSwitch('disable-http-cache'); // 禁用缓存
 app.commandLine.appendSwitch('disable-site-isolation-trials'); // 禁用站点隔离
 app.commandLine.appendSwitch('disable-features', 'WebSQL,IndexedDB'); // 禁用特定存储技术
-Menu.setApplicationMenu(null) // 彻底移除顶部菜单
+app.commandLine.appendSwitch('high-dpi-support', 'true'); // 允许高 DPI 缩放
+// Menu.setApplicationMenu(null) // 彻底移除顶部菜单和快捷键
 // 性能计时器
 const perfTimers = new Map();
 function startTimer(name) {
@@ -48,10 +47,9 @@ function createWindow () {
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,
-      devTools: false // 生产禁用 DevTools
+      devTools: true // 生产禁用 DevTools
     }
   })
-  mainWindow.webContents.setVisualZoomLevelLimits(1, 1); // 禁用Ctrl+/-缩放
 
   if (app.isPackaged) {
     // 生产环境：加载本地 dist 文件

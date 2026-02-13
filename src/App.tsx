@@ -3,16 +3,21 @@ import { Outlet } from "react-router-dom";
 import { ConfigProvider } from 'antd';
 
 function App() {
-
   // 关闭所有 antd 动画
   const disabledMotion = {
     motion: false,
   };
+  // 校验是否存在用户
+  const checkUser = () => {
+    window?.electronAPI?.dbQuery('getAllUsers').then(res => {
+      if(res.length === 0){
+        // window.electronAPI?.dbQuery('addUser', 'zhaogl', '123456')
+      }
+    })
+  }
 
   useEffect(() => {
-    window?.electronAPI?.dbQuery('getUser', 1).then(res => {
-      console.log(res)
-    })
+    checkUser()
   }, []);
 
   return (

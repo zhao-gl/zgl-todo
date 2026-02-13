@@ -50,6 +50,19 @@ class SQLiteDatabase {
     `);
   }
 
+  /**
+   * 关闭数据库连接
+   */
+  close() {
+    if (this.db) {
+      this.db.close();
+    }
+  }
+  // ================== 待办操作 =================
+  /**
+   * 获取所有待办事项
+   * @returns {Record<string, SQLOutputValue>[]}
+   */
   dbGetAllTodos() {
     return this.db.prepare('SELECT * FROM tb_todos ORDER BY created_at DESC').all();
   }
@@ -63,13 +76,22 @@ class SQLiteDatabase {
     return this.db.prepare('INSERT INTO tb_todos (title) VALUES (?)').run(title);
   }
 
+  // ================== 用户操作 =================
   /**
-   * 获取用户
+   * 根据id获取用户
    * @param id
    * @returns {Record<string, SQLOutputValue>}
    */
   dbGetUser(id) {
     return this.db.prepare('SELECT * FROM tb_users WHERE id = ?').get(id);
+  }
+
+  /**
+   * 获取所有用户
+   * @returns {Record<string, SQLOutputValue>[]}
+   */
+  dbGetAllUsers() {
+    return this.db.prepare('SELECT * FROM tb_users').all();
   }
 
   /**
@@ -83,11 +105,7 @@ class SQLiteDatabase {
     return this.db.prepare(`INSERT INTO tb_users (username, password_hash) VALUES (?, ?)`).run(username, passwordHash);
   }
 
-  close() {
-    if (this.db) {
-      this.db.close();
-    }
-  }
+
 }
 
 module.exports = SQLiteDatabase;

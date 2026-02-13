@@ -6,9 +6,14 @@ class UserController {
     this.db = SQLiteDatabase.getInstance();
   }
 
-  // 获取用户
+  // 根据id获取用户
   getUser(id) {
     return this.db.dbGetUser(id);
+  }
+
+  // 获取所有用户
+  getAllUsers() {
+    return this.db.dbGetAllUsers();
   }
 
   /**
