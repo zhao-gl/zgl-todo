@@ -18,6 +18,13 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       external: ['better-sqlite3', 'bindings']
+    },
+    // 生产环境去除 console 和 debugger
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
     }
   },
   server: {
