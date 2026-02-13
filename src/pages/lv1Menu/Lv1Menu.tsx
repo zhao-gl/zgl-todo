@@ -1,9 +1,9 @@
-import {RouteObject, useNavigate, useLocation} from 'react-router-dom';
-import {getTargetRoute} from "@/router"
-import {useEffect, useState} from "react";
+import { RouteObject, useNavigate, useLocation } from 'react-router-dom';
+import { getTargetRoute } from "@/router"
+import { useEffect, useState } from "react";
 import styles from "./style.module.less"
-import {Avatar, Button, Divider} from "antd";
-import {DeleteOutlined, MoreOutlined, UserOutlined} from "@ant-design/icons";
+import { Avatar, Button, Divider } from "antd";
+import { DeleteOutlined, MoreOutlined, UserOutlined } from "@ant-design/icons";
 
 const Lv1Menu = () => {
   const navigate = useNavigate();
@@ -11,11 +11,12 @@ const Lv1Menu = () => {
   const [tabList, setTabList] = useState<RouteObject[]>([])
   const [tagList, setTagList] = useState<any[]>([])
   const [currentMenu, setCurrentMenu] = useState<string>('/menu/todo')
+  const userinfo = JSON.parse(localStorage.getItem('user') || '{}');
 
   // 点击tab
   const handleTabClick = (path: string = '') => {
     setCurrentMenu(path)
-    if(!path) return
+    if (!path) return
     navigate(path, { replace: false });
   };
 
@@ -25,7 +26,7 @@ const Lv1Menu = () => {
     navigate({
       pathname: '/menu/tag',
       search: `?tag=${encodeURIComponent(tag)}`
-    }, {replace: false});
+    }, { replace: false });
   };
 
   // 点击回收站
@@ -57,18 +58,18 @@ const Lv1Menu = () => {
     <div className={styles.lv1Menu}>
       {/*用户区域*/}
       <div className={styles.user}>
-        <Avatar size={32} icon={<UserOutlined />} style={{marginRight: 16}} />
-        <div className={styles.username}>zhaogl</div>
+        <Avatar size={32} icon={<UserOutlined />} style={{ marginRight: 16 }} />
+        <div className={styles.username}>{userinfo.username}</div>
         <div className={styles.more}><MoreOutlined /></div>
       </div>
-      <Divider/>
+      <Divider />
       {/*菜单区域*/}
       <div className={styles.tab}>
         {tabList.map((item) => (
           <Button
             type="text"
             onClick={() => handleTabClick(item.path)}
-            key={item.id}
+            key={item.path}
             className={currentMenu === item.path ? styles.activeMenu : ''}
           >
             {item.handle?.icon}
@@ -76,7 +77,7 @@ const Lv1Menu = () => {
           </Button>
         ))}
       </div>
-      <Divider/>
+      <Divider />
       {/*标签区域*/}
       <div className={styles.tag}>
         <div className={styles.tagTitle}>
@@ -91,13 +92,13 @@ const Lv1Menu = () => {
               key={item.tag}
               onClick={() => handleTagClick(item.tag)}
             >
-              <div className={styles.tagColor} style={{backgroundColor: item.color}} />
+              <div className={styles.tagColor} style={{ backgroundColor: item.color }} />
               {item.tag}
             </Button>
           ))}
         </div>
       </div>
-      <Divider/>
+      <Divider />
       {/*回收站区域*/}
       <div className={styles.recycle}>
         <Button

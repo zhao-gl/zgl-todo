@@ -26,6 +26,8 @@ export default tseslint.config(
       // 解除 any 类型限制的相关规则
       '@typescript-eslint/no-explicit-any': 'off', // 允许使用 any 类型
       '@typescript-eslint/no-unused-vars': 'off', // 暂时关闭未使用变量检查
+      // 允许 useEffect 依赖数组为空
+      'react-hooks/exhaustive-deps': 'off', // 关闭依赖检查，允许空数组
     },
   },
 )

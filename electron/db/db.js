@@ -33,8 +33,6 @@ class SQLiteDatabase {
       CREATE TABLE IF NOT EXISTS tb_users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
-        nickname TEXT NOT NULL UNIQUE,
-        email TEXT NOT NULL UNIQUE,
         password_hash TEXT NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
@@ -82,8 +80,17 @@ class SQLiteDatabase {
    * @param id
    * @returns {Record<string, SQLOutputValue>}
    */
-  dbGetUser(id) {
+  dbGetUserById(id) {
     return this.db.prepare('SELECT * FROM tb_users WHERE id = ?').get(id);
+  }
+
+  /**
+   * 根据username获取用户
+   * @param username
+   * @returns {Record<string, SQLOutputValue>}
+   */
+  dbGetUserByUsername(username) {
+    return this.db.prepare('SELECT * FROM tb_users WHERE username = ?').get(username);
   }
 
   /**
@@ -96,16 +103,42 @@ class SQLiteDatabase {
 
   /**
    * 添加用户
-   * @param username
-   * @param password
+   * @param username {string} 用户名
+   * @param password {string} 密码
    * @returns {StatementResultingChanges}
    */
   dbAddUser(username, password) {
-    const passwordHash = require('crypto').createHash('sha256').update(password).digest('hex');
-    return this.db.prepare(`INSERT INTO tb_users (username, password_hash) VALUES (?, ?)`).run(username, passwordHash);
+    return this.db.prepare(`INSERT INTO tb_users (username, password_hash) VALUES (?, ?)`).run(username, password);
   }
 
+  /**
+   * 更新用户密码
+   * @param id {number} 用户id
+   * @param password {string} 新密码
+   * @returns {StatementResultingChanges}
+   */
+  dbUpdateUserPassword(id, password) {
+    return this.db.prepare(`UPDATE tb_users SET password_hash = ? WHERE id = ?`).run(password, id);
+  }
 
+  /**
+   * 删除用户
+   * @param id {number} 用户id
+   * @returns {StatementResultingChanges}
+   */
+  dbDeleteUser(id) {
+    return this.db.prepare(`DELETE FROM tb_users WHERE id = ?`).run(id);
+  }
+
+  /**
+   * 登录
+   * @param username {string} 用户名
+   * @param password {string} 密码
+   * @returns {Record<string, SQLOutputValue> | null}
+   */
+  dbLogin(username, password) {
+    return this.db.prepare(`SELECT * FROM tb_users WHERE username = ?`).get(username);
+  }
 }
 
 module.exports = SQLiteDatabase;

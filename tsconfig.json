@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "jsx": "react-jsx",        // 必须！支持 JSX 语法
+    "jsx": "react-jsx", // 必须！支持 JSX 语法
     "module": "ES2022",
     "moduleResolution": "bundler", // 或 "node"（旧项目）
     "noEmit": true,
@@ -11,12 +11,22 @@
     "skipLibCheck": true,
     "outDir": "./dist",
     "paths": {
-      "@/*": ["src/*"]
-    }
+      "@/*": [
+        "src/*"
+      ]
+    },
+    "lib": [
+      "DOM",
+      "ES2022"
+    ]
   },
   "include": [
     "src",
-    "src/**/*"   // 确保包含 src/types/
+    "src/**/*" // 确保包含 src/types/
   ],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts"
+  ],
 }

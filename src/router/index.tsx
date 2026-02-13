@@ -1,5 +1,5 @@
-import {createBrowserRouter, Navigate, RouteObject} from 'react-router-dom';
-import {CarryOutOutlined, InboxOutlined, PieChartOutlined, SunOutlined} from "@ant-design/icons";
+import { createBrowserRouter, Navigate, RouteObject } from 'react-router-dom';
+import { CarryOutOutlined, InboxOutlined, PieChartOutlined, SunOutlined } from "@ant-design/icons";
 import App from '../App';
 import GlobalLayout from "@/layout/GlobalLayout";
 import TodoList from "@/pages/todoList/TodoList";
@@ -8,12 +8,17 @@ import Collect from "@/pages/collect/Collect";
 import TagView from "@/pages/tagView/TagView";
 import Recycle from "@/pages/recycle/Recycle";
 import Statistics from "@/pages/statistics/Statistics";
+import Login from "@/pages/login/Login";
 
-const router = createBrowserRouter([
+const routes: RouteObject[] = [
   {
     path: '/',
-    element: <App/>,
+    element: <App />,
     children: [
+      {
+        path: '/login',
+        element: <Login />,
+      },
       {
         path: '/menu',
         element: <GlobalLayout />,
@@ -74,25 +79,24 @@ const router = createBrowserRouter([
       }
     ],
   },
-]);
+];
 
-// 获取菜单子路由
-const getTargetRoute = (path: string, route?: RouteObject): RouteObject | undefined => {
-  if(!route){
-    route = router.routes[0]
-  }
-  if(route.path === path) return route
-  // 递归查找子路由
-  if (route.children) {
-    for (const child of route.children) {
-      const found: RouteObject |  undefined = getTargetRoute(path, child);
+const router = createBrowserRouter(routes);
+
+const getTargetRoute = (path: string, routeList: RouteObject[] = routes): RouteObject | undefined => {
+  for (const route of routeList) {
+    if (route.path === path) {
+      return route;
+    }
+    if (route.children) {
+      const found: RouteObject | undefined = getTargetRoute(path, route.children);
       if (found) {
         return found;
       }
     }
   }
-  return undefined
-}
+  return undefined;
+};
 
 export {
   router,

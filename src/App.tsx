@@ -1,20 +1,21 @@
-import {Suspense, useEffect} from 'react';
-import { Outlet } from "react-router-dom";
+import { Suspense, useEffect } from 'react';
+import { Outlet, useNavigate } from "react-router-dom";
 import { ConfigProvider } from 'antd';
 
 function App() {
-  // 关闭所有 antd 动画
+  const navigate = useNavigate();
   const disabledMotion = {
     motion: false,
   };
-  // 校验是否存在用户
+  // 检测用户是否存在
   const checkUser = () => {
-    window?.electronAPI?.dbQuery('getAllUsers').then(res => {
-      if(res.length === 0){
-        // window.electronAPI?.dbQuery('addUser', 'zhaogl', '123456')
-      }
-    })
-  }
+    const user = localStorage.getItem('user');
+    if (user) {
+      navigate('/menu');
+    } else {
+      navigate('/login');
+    }
+  };
 
   useEffect(() => {
     checkUser()

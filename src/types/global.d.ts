@@ -3,7 +3,9 @@ export {};
 declare global {
   interface Window {
     electronAPI?: {
-      dbQuery: (method: string, params?: any) => Promise<any>;
+      dbQuery: (method: string, ...args: any[]) => Promise<any>;
+      getWindowState: () => Promise<any>;
+      onWindowStateChange: (Event) => Promise<any>;
     };
   }
 }

@@ -121,6 +121,27 @@ app.whenReady().then(async () => {
   // ===================== WINDOW =====================
   console.log('开始创建主窗口');
   createWindow();
+
+  // 监听窗口状态变化并通知渲染进程
+  mainWindow.on('maximize', () => {
+    console.log('窗口已最大化');
+    mainWindow.webContents.send('window-state-changed', { isMaximized: true });
+  });
+  
+  mainWindow.on('unmaximize', () => {
+    console.log('窗口已取消最大化');
+    mainWindow.webContents.send('window-state-changed', { isMaximized: false });
+  });
+  
+  mainWindow.on('minimize', () => {
+    console.log('窗口已最小化');
+    mainWindow.webContents.send('window-state-changed', { isMinimized: true });
+  });
+  
+  mainWindow.on('restore', () => {
+    console.log('窗口已恢复');
+    mainWindow.webContents.send('window-state-changed', { isMinimized: false });
+  });
   console.log('主窗口创建完成');
   endTimer('app-ready-to-create-window');
 
