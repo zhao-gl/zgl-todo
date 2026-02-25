@@ -2,8 +2,10 @@ import { RouteObject, useNavigate, useLocation } from 'react-router-dom';
 import { getTargetRoute } from "@/router"
 import { useEffect, useState } from "react";
 import styles from "./style.module.less"
-import { Avatar, Button, Divider } from "antd";
-import { DeleteOutlined, MoreOutlined, UserOutlined } from "@ant-design/icons";
+import { Avatar, Button, Divider, Dropdown } from "antd";
+import {DeleteOutlined, LogoutOutlined, MoreOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
+import type { MenuProps } from 'antd';
+import Settings from "./modal/Settings";
 
 const Lv1Menu = () => {
   const navigate = useNavigate();
@@ -12,6 +14,39 @@ const Lv1Menu = () => {
   const [tagList, setTagList] = useState<any[]>([])
   const [currentMenu, setCurrentMenu] = useState<string>('/menu/todo')
   const userinfo = JSON.parse(localStorage.getItem('user') || '{}');
+  // 设置区域
+  const [isOpenSetting, setIsOpenSetting] = useState(false);
+  const [defSettingArea, setDefSettingArea] = useState(0);
+
+  // 菜单项
+  const items: MenuProps['items'] = [
+    {
+      label: '个人信息',
+      key: '0',
+      icon: <UserOutlined />,
+      onClick: () => {
+        openSetting(0)
+      },
+    },
+    {
+      label: '设置',
+      key: '1',
+      icon: <SettingOutlined />,
+      onClick: () => {
+        openSetting(1)
+      },
+    },
+    {
+      label: (<span style={{color: '#f5222d'}}>退出登录</span>),
+      key: '3',
+      icon: <LogoutOutlined />,
+      onClick: () => {
+        console.log('退出登录')
+        localStorage.removeItem('user');
+        navigate('/login', { replace: true });
+      },
+    },
+  ];
 
   // 点击tab
   const handleTabClick = (path: string = '') => {
@@ -33,6 +68,11 @@ const Lv1Menu = () => {
   const handleRecycleClick = () => {
     setCurrentMenu('recycle')
     navigate('/menu/recycle', { replace: false });
+  };
+  // 打开设置
+  const openSetting = (area: number) => {
+    setDefSettingArea(area)
+    setIsOpenSetting(true)
   };
 
   useEffect(() => {
@@ -60,7 +100,11 @@ const Lv1Menu = () => {
       <div className={styles.user}>
         <Avatar size={32} icon={<UserOutlined />} style={{ marginRight: 16 }} />
         <div className={styles.username}>{userinfo.username}</div>
-        <div className={styles.more}><MoreOutlined /></div>
+        <div className={styles.more}>
+          <Dropdown menu={{ items }} trigger={['click']}>
+            <MoreOutlined />
+          </Dropdown>
+        </div>
       </div>
       <Divider />
       {/*菜单区域*/}
@@ -110,6 +154,8 @@ const Lv1Menu = () => {
           回收站
         </Button>
       </div>
+      {/*设置-弹窗*/}
+      <Settings open={isOpenSetting} setOpen={setIsOpenSetting} defSettingArea={defSettingArea} />
     </div>
   );
 };
