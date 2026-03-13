@@ -17,21 +17,19 @@ class UserController {
     return this.db.dbGetUserByUsername(username);
   }
 
-  // 获取所有用户
-  getAllUsers() {
-    return this.db.dbGetAllUsers();
-  }
-
   /**
    * 添加新用户
    * @param username 用户名
    * @param password 密码
    * @returns {*}
    */
-  addUser(username, password) {
+  addUser(username, nickname, password) {
     // 空值校验
     if (!username || !password) {
-      return '用户名和密码不能为空!';
+      return '用户名或密码不能为空!';
+    }
+    if(!nickname){
+      nickname = username;
     }
     // 校验用户名是否已存在
     const existingUser = this.db.dbGetUserByUsername(username);
@@ -39,7 +37,7 @@ class UserController {
       return '用户名已存在!';
     }
     const passwordHash = require('crypto').createHash('sha256').update(password).digest('hex');
-    return this.db.dbAddUser(username, passwordHash);
+    return this.db.dbAddUser(username, nickname, passwordHash);
   }
 
   // 修改用户密码

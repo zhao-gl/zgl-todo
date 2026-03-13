@@ -67,7 +67,7 @@ class SQLiteDatabase {
 
   /**
    * 添加待办事项
-   * @param title
+   * @param title {string} 标题
    * @returns {StatementResultingChanges}
    */
   dbAddTodo(title) {
@@ -76,8 +76,8 @@ class SQLiteDatabase {
 
   // ================== 用户操作 =================
   /**
-   * 根据id获取用户
-   * @param id
+   * 根据id获取用户信息
+   * @param id {number}
    * @returns {Record<string, SQLOutputValue>}
    */
   dbGetUserById(id) {
@@ -86,7 +86,7 @@ class SQLiteDatabase {
 
   /**
    * 根据username获取用户
-   * @param username
+   * @param username {string}
    * @returns {Record<string, SQLOutputValue>}
    */
   dbGetUserByUsername(username) {
@@ -94,21 +94,14 @@ class SQLiteDatabase {
   }
 
   /**
-   * 获取所有用户
-   * @returns {Record<string, SQLOutputValue>[]}
-   */
-  dbGetAllUsers() {
-    return this.db.prepare('SELECT * FROM tb_users').all();
-  }
-
-  /**
-   * 添加用户
+   * 注册用户
    * @param username {string} 用户名
+   * @param nickname {string} 昵称
    * @param password {string} 密码
    * @returns {StatementResultingChanges}
    */
-  dbAddUser(username, password) {
-    return this.db.prepare(`INSERT INTO tb_users (username, password_hash) VALUES (?, ?)`).run(username, password);
+  dbAddUser(username, nickname, password) {
+    return this.db.prepare(`INSERT INTO tb_users (username, nickname, password_hash) VALUES (?, ?)`).run(username, nickname, password);
   }
 
   /**

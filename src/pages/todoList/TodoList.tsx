@@ -21,6 +21,7 @@ const TodoList = () => {
         content: value.trim(),
         done: false
       }
+
       setTodoList([...todoList, item])
       setTodoInputVal('')
     }
