@@ -15,7 +15,7 @@ class SQLiteDatabase {
       throw new Error('Database can only be used in Electron main process');
     }
 
-    const { app } = require('electron');
+    const {app} = require('electron');
     const Database = require('better-sqlite3');
     const path = require('path');
     // 获取数据库文件路径
@@ -32,8 +32,7 @@ class SQLiteDatabase {
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS tb_users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL UNIQUE,
-        nickname TEXT NOT NULL,
+        username TEXT NOT NULL,
         email TEXT,
         password_hash TEXT NOT NULL,
         created_at DATETIME DEFAULT (datetime('now', 'localtime')),
@@ -61,7 +60,7 @@ class SQLiteDatabase {
         is_collect BOOLEAN DEFAULT 0,
         created_at DATETIME DEFAULT (datetime('now', 'localtime')),
         updated_at DATETIME DEFAULT (datetime('now', 'localtime')),
-        FOREIGN KEY (user_id) REFERENCES tb_users(id)
+        FOREIGN KEY (user_id) REFERENCES tb_users (id)
       )
     `);
     // 创建触发器，更新时自动修改 updated_at
@@ -82,6 +81,7 @@ class SQLiteDatabase {
       this.db.close();
     }
   }
+
   // ================== 待办操作 =================
   /**
    * 获取所有待办事项
@@ -114,13 +114,13 @@ class SQLiteDatabase {
    * @returns {StatementResultingChanges}
    */
   dbUpdateTodo(id, data) {
-    const { content, completed, tags, priority } = data;
+    const {content, completed, tags, priority} = data;
     return this.db.prepare(`
       UPDATE tb_todos
-      SET content = ?,
+      SET content   = ?,
           completed = ?,
-          tags = ?,
-          priority = ?
+          tags      = ?,
+          priority  = ?
       WHERE id = ?
     `).run(content, completed, tags, priority, id);
   }
@@ -132,7 +132,9 @@ class SQLiteDatabase {
    */
   dbDeleteTodo(id) {
     return this.db.prepare(`
-      UPDATE tb_todos SET is_deleted = 1 WHERE id = ?
+      UPDATE tb_todos
+      SET is_deleted = 1
+      WHERE id = ?
     `).run(id);
   }
 
@@ -143,7 +145,9 @@ class SQLiteDatabase {
    */
   dbRestoreTodo(id) {
     return this.db.prepare(`
-      UPDATE tb_todos SET is_deleted = 0 WHERE id = ?
+      UPDATE tb_todos
+      SET is_deleted = 0
+      WHERE id = ?
     `).run(id);
   }
 
@@ -173,7 +177,9 @@ class SQLiteDatabase {
    */
   dbToggleCollect(id, isCollect) {
     return this.db.prepare(`
-      UPDATE tb_todos SET is_collect = ? WHERE id = ?
+      UPDATE tb_todos
+      SET is_collect = ?
+      WHERE id = ?
     `).run(isCollect ? 1 : 0, id);
   }
 
@@ -184,7 +190,9 @@ class SQLiteDatabase {
    * @returns {Record<string, SQLOutputValue>[]}
    */
   dbGetTodosByPriority(userId, priority) {
-    return this.db.prepare('SELECT * FROM tb_todos WHERE user_id = ? AND priority = ? AND is_deleted = 0 ORDER BY created_at DESC').all(userId, priority);
+    return this.db.prepare('' +
+      'SELECT * FROM tb_todos WHERE user_id = ? AND priority = ? AND is_deleted = 0 ORDER BY created_at DESC'
+    ).all(userId, priority);
   }
 
   /**
@@ -194,7 +202,9 @@ class SQLiteDatabase {
    * @returns {Record<string, SQLOutputValue>[]}
    */
   dbGetTodosByTag(userId, tags) {
-    return this.db.prepare('SELECT * FROM tb_todos WHERE user_id = ? AND tags = ? AND is_deleted = 0 ORDER BY created_at DESC').all(userId, tags);
+    return this.db.prepare('' +
+      'SELECT * FROM tb_todos WHERE user_id = ? AND tags = ? AND is_deleted = 0 ORDER BY created_at DESC'
+    ).all(userId, tags);
   }
 
   // ================== 用户操作 =================
@@ -219,22 +229,37 @@ class SQLiteDatabase {
   /**
    * 注册用户
    * @param username {string} 用户名
-   * @param nickname {string} 昵称
    * @param password {string} 密码
    * @returns {StatementResultingChanges}
    */
-  dbAddUser(username, nickname, password) {
-    return this.db.prepare(`INSERT INTO tb_users (username, nickname, password_hash) VALUES (?, ?, ?)`).run(username, nickname, password);
+  dbAddUser(username, password) {
+    return this.db.prepare(`
+      INSERT INTO tb_users (username, password_hash)
+      VALUES (?, ?)`
+    ).run(username, password);
   }
 
   /**
-   * 更新用户密码
+   * 更新用户信息
    * @param id {number} 用户id
+   * @param username {string} 用户名
    * @param password {string} 新密码
    * @returns {StatementResultingChanges}
    */
-  dbUpdateUserPassword(id, password) {
-    return this.db.prepare(`UPDATE tb_users SET password_hash = ? WHERE id = ?`).run(password, id);
+  dbUpdateUser(id, username, password) {
+    if (password) {
+      return this.db.prepare(`
+        UPDATE tb_users
+        SET username      = ?,
+            password_hash = ?
+        WHERE id = ?`
+      ).run(username, password, id);
+    }
+    return this.db.prepare(`
+      UPDATE tb_users
+      SET username = ?
+      WHERE id = ?`
+    ).run(username, id);
   }
 
   /**
@@ -243,7 +268,11 @@ class SQLiteDatabase {
    * @returns {StatementResultingChanges}
    */
   dbDeleteUser(id) {
-    return this.db.prepare(`DELETE FROM tb_users WHERE id = ?`).run(id);
+    return this.db.prepare(`
+      DELETE
+      FROM tb_users
+      WHERE id = ?`
+    ).run(id);
   }
 
   /**
@@ -253,7 +282,11 @@ class SQLiteDatabase {
    * @returns {Record<string, SQLOutputValue> | null}
    */
   dbLogin(username, password) {
-    return this.db.prepare(`SELECT * FROM tb_users WHERE username = ?`).get(username);
+    return this.db.prepare(`
+      SELECT *
+      FROM tb_users
+      WHERE username = ?`
+    ).get(username);
   }
 }
 

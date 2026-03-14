@@ -20,17 +20,13 @@ class UserController {
   /**
    * 添加新用户
    * @param username 用户名
-   * @param nickname 昵称
    * @param password 密码
    * @returns {*}
    */
-  addUser(username, nickname, password) {
+  addUser(username, password) {
     // 空值校验
     if (!username || !password) {
       return '用户名或密码不能为空!';
-    }
-    if(!nickname){
-      nickname = username;
     }
     // 校验用户名是否已存在
     const existingUser = this.db.dbGetUserByUsername(username);
@@ -38,12 +34,15 @@ class UserController {
       return '用户名已存在!';
     }
     const passwordHash = require('crypto').createHash('sha256').update(password).digest('hex');
-    return this.db.dbAddUser(username, nickname, passwordHash);
+    return this.db.dbAddUser(username, passwordHash);
   }
 
-  // 修改用户密码
-  uploadUserPassword(id, password) {
-    return this.db.dbUpdateUserPassword(id, password);
+  // 修改用户信息
+  updateUser(id, username, password) {
+    if(password){
+      password = crypto.createHash('sha256').update(password).digest('hex');
+    }
+    return this.db.dbUpdateUser(id, username, password);
   }
 
   // 删除用户

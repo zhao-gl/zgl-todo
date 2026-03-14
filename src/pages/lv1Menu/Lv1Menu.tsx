@@ -16,24 +16,24 @@ const Lv1Menu = () => {
   const userinfo = JSON.parse(localStorage.getItem('user') || '{}');
   // 设置区域
   const [isOpenSetting, setIsOpenSetting] = useState(false);
-  const [defSettingArea, setDefSettingArea] = useState(0);
+  const [defSettingArea, setDefSettingArea] = useState('1');
 
   // 菜单项
   const items: MenuProps['items'] = [
     {
       label: '个人信息',
-      key: '0',
+      key: '1',
       icon: <UserOutlined />,
       onClick: () => {
-        openSetting(0)
+        openSetting('1')
       },
     },
     {
       label: '设置',
-      key: '1',
+      key: '2',
       icon: <SettingOutlined />,
       onClick: () => {
-        openSetting(1)
+        openSetting('2')
       },
     },
     {
@@ -70,7 +70,7 @@ const Lv1Menu = () => {
     navigate('/menu/recycle', { replace: false });
   };
   // 打开设置
-  const openSetting = (area: number) => {
+  const openSetting = (area: string) => {
     setDefSettingArea(area)
     setIsOpenSetting(true)
   };
@@ -98,8 +98,8 @@ const Lv1Menu = () => {
     <div className={styles.lv1Menu}>
       {/*用户区域*/}
       <div className={styles.user}>
-        <Avatar size={32} icon={<UserOutlined />} style={{ marginRight: 16 }} />
-        <div className={styles.username}>{userinfo?.nickname || userinfo?.username}</div>
+        {/*<Avatar size={32} icon={<UserOutlined />} style={{ marginRight: 16 }} />*/}
+        <div className={styles.username}>{userinfo?.username}</div>
         <div className={styles.more}>
           <Dropdown menu={{ items }} trigger={['click']}>
             <MoreOutlined />
