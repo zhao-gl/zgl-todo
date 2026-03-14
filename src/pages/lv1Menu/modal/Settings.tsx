@@ -13,7 +13,7 @@ type SettingsProps = {
 const Settings = (props: SettingsProps) => {
   const {open, setOpen, defSettingArea} = props;
   const navigate = useNavigate();
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([defSettingArea]);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const userInfo = JSON.parse(localStorage.getItem('user') || '{}');
   // 个人信息
   const [userForm] = Form.useForm();
@@ -76,6 +76,7 @@ const Settings = (props: SettingsProps) => {
 
   useEffect(() => {
     if(open){
+      setSelectedKeys([defSettingArea])
       echoUserinfo()
     }
   }, [open])
