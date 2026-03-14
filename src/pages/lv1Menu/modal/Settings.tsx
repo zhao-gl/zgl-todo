@@ -39,6 +39,11 @@ const Settings = (props: SettingsProps) => {
     const activeKey = selectedKeys[0];
     if(activeKey === '1'){
       userForm.validateFields().then(async (values) => {
+        // 用户名相同则不修改
+        if(!isChangePwd && values.username === userInfo.username){
+          setOpen(false);
+          return;
+        }
         const res = await window.electronAPI?.dbQuery(
           'user.updateUser',
           userInfo.id,
