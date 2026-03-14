@@ -43,7 +43,7 @@ const TodoList = () => {
       {/*工具栏区域*/}
       <div className={styles.toolBar}>
         <h3>今日待办</h3>
-        <div className={styles.toolBarOther}>其他工具</div>
+        <div className={styles.toolBarOther}>更多</div>
       </div>
       {/*输入区域*/}
       <div>

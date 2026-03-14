@@ -20,6 +20,7 @@ class UserController {
   /**
    * 添加新用户
    * @param username 用户名
+   * @param nickname 昵称
    * @param password 密码
    * @returns {*}
    */

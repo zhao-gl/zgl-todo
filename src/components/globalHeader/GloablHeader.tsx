@@ -3,10 +3,11 @@ import { useState, useEffect } from 'react';
 
 interface GlobalHeaderProps {
   hasControl?: boolean; // 是否显示控制按钮
+  [key: string]: any; // 允许额外属性
 }
 
 const GlobalHeader = (props: GlobalHeaderProps) => {
-  const { hasControl } = props;
+  const { hasControl, ...resetProps } = props;
   const [isMaximized, setIsMaximized] = useState(false);
 
   // 监听窗口状态变化
@@ -35,7 +36,7 @@ const GlobalHeader = (props: GlobalHeaderProps) => {
   }, []);
 
   return (
-    <div className={styles.globalHeader}>
+    <div className={styles.globalHeader} {...resetProps}>
       {hasControl && (
         <div className={styles.control}>
           <button className="electron-window-min-btn" style={{fontSize: 12,verticalAlign: 'bottom'}}>—</button>

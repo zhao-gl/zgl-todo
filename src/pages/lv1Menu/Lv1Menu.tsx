@@ -99,7 +99,7 @@ const Lv1Menu = () => {
       {/*用户区域*/}
       <div className={styles.user}>
         <Avatar size={32} icon={<UserOutlined />} style={{ marginRight: 16 }} />
-        <div className={styles.username}>{userinfo.username}</div>
+        <div className={styles.username}>{userinfo?.nickname || userinfo?.username}</div>
         <div className={styles.more}>
           <Dropdown menu={{ items }} trigger={['click']}>
             <MoreOutlined />
