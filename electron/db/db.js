@@ -39,7 +39,7 @@ class SQLiteDatabase {
         updated_at DATETIME DEFAULT (datetime('now', 'localtime'))
       )
     `);
-    // 创建触发器
+    // 创建 users 表触发器
     this.db.exec(`
       CREATE TRIGGER IF NOT EXISTS update_users_timestamp
       AFTER UPDATE ON tb_users
@@ -53,13 +53,17 @@ class SQLiteDatabase {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
         content TEXT NOT NULL,
-        completed BOOLEAN DEFAULT 0,
+        desc TEXT,
+        done INTEGER DEFAULT 0,
+        type INTEGER,
         tags TEXT,
-        priority INTEGER DEFAULT 0,
-        is_deleted BOOLEAN DEFAULT 0,
-        is_collect BOOLEAN DEFAULT 0,
+        priority INTEGER,
+        is_deleted INTEGER DEFAULT 0,
+        is_collect INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT (datetime('now', 'localtime')),
         updated_at DATETIME DEFAULT (datetime('now', 'localtime')),
+        deleted_at DATETIME,
+        destroy_at DATETIME,
         FOREIGN KEY (user_id) REFERENCES tb_users (id)
       )
     `);
@@ -84,27 +88,38 @@ class SQLiteDatabase {
 
   // ================== 待办操作 =================
   /**
-   * 获取所有待办事项
+   * 新增待办事项
    * @param userId {number} 用户 ID
-   * @returns {Record<string, SQLOutputValue>[]}
+   * @param content {string} 待办内容
+   * @param type {number} 类别
+   * @returns {StatementResultingChanges}
    */
-  dbGetAllTodos(userId) {
-    return this.db.prepare('SELECT * FROM tb_todos WHERE user_id = ? AND is_deleted = 0 ORDER BY created_at DESC').all(userId);
+  dbAddTodo(userId, content, type) {
+    return this.db.prepare(`
+      INSERT INTO tb_todos (user_id, content, type)
+      VALUES (?, ?, ?)
+    `).run(userId, content, type);
   }
 
   /**
-   * 添加待办事项
+   * 根据是否完成筛选待办事项
    * @param userId {number} 用户 ID
-   * @param content {string} 待办内容
-   * @param tags {null | string} 标签
-   * @param priority {number} 优先级 (0-4)
-   * @returns {StatementResultingChanges}
+   * @param done {number} 是否完成
+   * @returns {Record<string, SQLOutputValue>[]}
    */
-  dbAddTodo(userId, content, tags = null, priority = 0) {
-    return this.db.prepare(`
-      INSERT INTO tb_todos (user_id, content, tags, priority)
-      VALUES (?, ?, ?, ?)
-    `).run(userId, content, tags, priority);
+  dbTodosByDone(userId, done) {
+    if (done !== 0 && done !== 1) {
+      throw new Error('done must be 0 or 1');
+    }
+    const stmt = this.db.prepare(`
+      SELECT * FROM tb_todos
+      WHERE user_id = ?
+        AND done = ?
+        AND is_deleted = 0
+      ORDER BY created_at DESC
+    `);
+    // @ts-ignore
+    return stmt.all([userId, done]);
   }
 
   /**

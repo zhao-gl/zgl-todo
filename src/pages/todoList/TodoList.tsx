@@ -1,4 +1,4 @@
-import {Input} from "antd";
+import {Input, message} from "antd";
 import styles from "./style.module.less"
 import React, {useEffect, useState} from "react";
 import {TodoItem} from "@/types/todoList";
@@ -7,35 +7,50 @@ import TodoSetting from "@/pages/todoList/components/TodoSetting";
 import {PlusOutlined} from "@ant-design/icons";
 
 const TodoList = () => {
+  const userInfo = JSON.parse(localStorage.getItem('user') || '{}');
   const [todoList, setTodoList] = useState<TodoItem[]>([])
   const [todoInputVal, setTodoInputVal] = useState<string>('')
   const [nowTime, setNowTime] = useState<string>('')
   const [visibleTodoSetting, setVisibleTodoSetting] = useState<boolean>(false)
+  const [pickType, setPickType] = useState<number>(0)
 
-  const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  // 获取待办列表
+  const getTodoList = async () => {
+    const arr = await window.electronAPI?.dbQuery('todo.getTodosByDone',{
+      userId: userInfo.id,
+      done: 0
+    })
+    if (Array.isArray(arr)) {
+      setTodoList(arr)
+    }
+  }
+  // 回车-添加待办
+  const handleEnter = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     const {value} = e.target as HTMLInputElement
     if (!value.trim()) return
     if (e.code === 'Enter') {
       const item = {
-        id: new Date().getTime(),
+        userId: userInfo.id,
         content: value.trim(),
-        done: false
+        type: pickType,
       }
-
-      setTodoList([...todoList, item])
-      setTodoInputVal('')
+      const res = await window.electronAPI?.dbQuery('todo.addTodo', item)
+      if(res.changes){
+        setTodoList([...todoList, item])
+        setTodoInputVal('')
+      }else{
+        message.warning('新增失败')
+      }
     }
   }
 
   useEffect(() => {
     // setTodoInputVal('')
+    if(todoList.length === 0) getTodoList()
   }, [todoList])
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setNowTime(new Date().toLocaleTimeString())
-    }, 1000)
-    return () => clearTimeout(timer)
+
   }, [])
 
   return (

@@ -1,8 +1,10 @@
 type TodoItem = {
-  id: number
+  id?: number
+  userId?: number
   content: string
-  done: boolean
-  disabled?: boolean
+  done?: number
+  type?: number
+  desc?: string
 }
 
 type TodoCenterProps = {
