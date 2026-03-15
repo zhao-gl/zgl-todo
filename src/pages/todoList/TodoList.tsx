@@ -1,10 +1,12 @@
-import {Input, message} from "antd";
+import {DatePicker, Input, message} from "antd";
 import styles from "./style.module.less"
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {TodoItem} from "@/types/todoList";
-import TodoCenter from "@/pages/todoList/components/TodoCenter";
-import TodoSetting from "@/pages/todoList/components/TodoSetting";
+import TodoCenter from "@/pages/todoList/TodoCenter";
+import TodoSetting from "@/pages/todoList/TodoSetting";
 import {PlusOutlined} from "@ant-design/icons";
+import dayjs from "dayjs";
+import CustomWeekPicker from "./components/CustomWeekPicker/CustomWeekPicker"
 
 const TodoList = () => {
   const userInfo = JSON.parse(localStorage.getItem('user') || '{}');
@@ -13,17 +15,18 @@ const TodoList = () => {
   const [nowTime, setNowTime] = useState<string>('')
   const [visibleTodoSetting, setVisibleTodoSetting] = useState<boolean>(false)
   const [pickType, setPickType] = useState<number>(0)
+  const [date, setDate] = useState('');
 
   // 获取待办列表
-  const getTodoList = async () => {
-    const arr = await window.electronAPI?.dbQuery('todo.getTodosByDone',{
+  const getTodoList = useCallback( async () => {
+    const arr = await window.electronAPI?.dbQuery('todo.getTodosByDate',{
       userId: userInfo.id,
-      done: 0
+      date
     })
     if (Array.isArray(arr)) {
       setTodoList(arr)
     }
-  }
+  }, [userInfo.id, date])
   // 回车-添加待办
   const handleEnter = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     const {value} = e.target as HTMLInputElement
@@ -45,12 +48,11 @@ const TodoList = () => {
   }
 
   useEffect(() => {
-    // setTodoInputVal('')
-    if(todoList.length === 0) getTodoList()
-  }, [todoList])
+    getTodoList()
+  }, [getTodoList])
 
   useEffect(() => {
-
+    setDate(dayjs().format('YYYY-MM-DD'))
   }, [])
 
   return (
@@ -58,7 +60,11 @@ const TodoList = () => {
       {/*工具栏区域*/}
       <div className={styles.toolBar}>
         <h3>今日待办</h3>
-        <div className={styles.toolBarOther}>更多</div>
+        <div className={styles.toolBarOther}>
+          <CustomWeekPicker
+            onDateSelect={(date)=> setDate(date)}
+          />
+        </div>
       </div>
       {/*输入区域*/}
       <div>
@@ -76,7 +82,7 @@ const TodoList = () => {
       {/*待办项区域*/}
       <TodoCenter
         todoList={todoList}
-        setTodoList={setTodoList}
+        getTodoList={getTodoList}
         setVisibleTodoSetting={setVisibleTodoSetting}
       />
       <div className={styles.todoFooter}>{nowTime}</div>

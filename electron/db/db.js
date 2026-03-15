@@ -102,6 +102,22 @@ class SQLiteDatabase {
   }
 
   /**
+   * 根据日期获取待办项
+   * @param userId {number} 用户 ID
+   * @param date {string} 日期
+   * @returns {Record<string, SQLOutputValue>[]}
+   */
+  dbGetTodosByDate({userId, date}) {
+    return this.db.prepare(`
+      SELECT * FROM tb_todos
+      WHERE user_id = ?
+        AND DATE(created_at) = ?
+        AND is_deleted = 0
+      ORDER BY created_at DESC
+    `).all([userId, date]);
+  }
+
+  /**
    * 根据是否完成筛选待办事项
    * @param userId {number} 用户 ID
    * @param done {number} 是否完成
@@ -124,20 +140,22 @@ class SQLiteDatabase {
 
   /**
    * 更新待办事项
-   * @param id {number} 待办 ID
-   * @param data {Object} 更新数据
+   * @param params {Object} 更新数据
    * @returns {StatementResultingChanges}
    */
-  dbUpdateTodo(id, data) {
-    const {content, completed, tags, priority} = data;
+  dbUpdateTodo({id, content, desc, done, type, tags, priority, is_deleted, is_collect}) {
     return this.db.prepare(`
       UPDATE tb_todos
-      SET content   = ?,
-          completed = ?,
-          tags      = ?,
-          priority  = ?
+      SET content    = ?,
+          desc       = ?,
+          done       = ?,
+          type       = ?,
+          tags       = ?,
+          priority   = ?,
+          is_deleted = ?,
+          is_collect = ?
       WHERE id = ?
-    `).run(content, completed, tags, priority, id);
+    `).run(content, desc, done, type, tags, priority, is_deleted, is_collect, id);
   }
 
   /**

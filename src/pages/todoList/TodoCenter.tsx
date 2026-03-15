@@ -4,16 +4,21 @@ import styles from "@/pages/todoList/style.module.less";
 import React from "react";
 import {Checkbox} from "antd";
 
-const TodoCenter = (props: TodoCenterProps) => {
-  const {todoList, setTodoList, setVisibleTodoSetting} = props
+type TodoCenterProps = {
+  todoList: TodoItem[],
+  getTodoList: () => void,
+  setVisibleTodoSetting: (visible: boolean) => void
+}
 
-  const changeTodoStatus = (checked: boolean, item: TodoItem) => {
-    // setTodoList(todoList.map(todoItem => {
-    //   if (todoItem.id === item.id) {
-    //     return { ...todoItem, done: checked }
-    //   }
-    //   return todoItem
-    // }))
+const TodoCenter = (props: TodoCenterProps) => {
+  const {todoList, getTodoList, setVisibleTodoSetting} = props
+
+  const changeTodoStatus = async (checked: boolean, item: TodoItem) => {
+    item.done = checked ? 1 : 0
+    const res = await window.electronAPI?.dbQuery('todo.updateTodo', item)
+    if(res.changes){
+      getTodoList()
+    }
   }
 
   const openTodoSetting = (item: TodoItem) => {

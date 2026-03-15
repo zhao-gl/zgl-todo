@@ -7,12 +7,6 @@ type TodoItem = {
   desc?: string
 }
 
-type TodoCenterProps = {
-  todoList: TodoItem[],
-  setTodoList: (todoList: TodoItem[]) => void,
-  setVisibleTodoSetting: (visible: boolean) => void
-}
-
 type TodoSettingProps = {
   visible: boolean,
   setVisible?: (visible: boolean) => void
