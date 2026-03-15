@@ -38,7 +38,7 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    minWidth: 800,
+    minWidth: 900,
     minHeight: 600,
     frame: false, // 移除默认的菜单栏
     show: false,
@@ -127,17 +127,17 @@ app.whenReady().then(async () => {
     console.log('窗口已最大化');
     mainWindow.webContents.send('window-state-changed', { isMaximized: true });
   });
-  
+
   mainWindow.on('unmaximize', () => {
     console.log('窗口已取消最大化');
     mainWindow.webContents.send('window-state-changed', { isMaximized: false });
   });
-  
+
   mainWindow.on('minimize', () => {
     console.log('窗口已最小化');
     mainWindow.webContents.send('window-state-changed', { isMinimized: true });
   });
-  
+
   mainWindow.on('restore', () => {
     console.log('窗口已恢复');
     mainWindow.webContents.send('window-state-changed', { isMinimized: false });
