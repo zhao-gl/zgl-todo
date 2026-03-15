@@ -11,7 +11,7 @@ const Lv1Menu = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [tabList, setTabList] = useState<RouteObject[]>([])
-  const [tagList, setTagList] = useState<any[]>([])
+  const [typeList, setTypeList] = useState<any[]>([])
   const [currentMenu, setCurrentMenu] = useState<string>('/menu/todo')
   const userinfo = JSON.parse(localStorage.getItem('user') || '{}');
   // 设置区域
@@ -56,11 +56,11 @@ const Lv1Menu = () => {
   };
 
   // 点击标签
-  const handleTagClick = (tag: string) => {
-    setCurrentMenu(tag)
+  const handleTypeClick = (type: string) => {
+    setCurrentMenu(type)
     navigate({
-      pathname: '/menu/tag',
-      search: `?tag=${encodeURIComponent(tag)}`
+      pathname: '/menu/type',
+      search: `?type=${encodeURIComponent(type)}`
     }, { replace: false });
   };
 
@@ -81,16 +81,16 @@ const Lv1Menu = () => {
       ?.filter(child => {
         return child.path && child.path !== '' && child.handle
       }) || [])
-    setTagList(() => {
-      const newTagList = [];
+    setTypeList(() => {
+      const newTypeList = [];
       for (let i = 0; i < 5; i++) {
-        const tag = {
-          tag: `标签${i}`,
+        const type = {
+          type: `类别${i}`,
           color: `#${Math.floor(Math.random() * 0xffffff).toString(16)}`
         }
-        newTagList.push(tag);
+        newTypeList.push(type);
       }
-      return newTagList;
+      return newTypeList;
     })
   }, [])
 
@@ -122,22 +122,22 @@ const Lv1Menu = () => {
         ))}
       </div>
       <Divider />
-      {/*标签区域*/}
-      <div className={styles.tag}>
-        <div className={styles.tagTitle}>
-          <div>标签</div>
-          <div className={styles.tagSettingBtn}><a href="#">管理</a></div>
+      {/*分类区域*/}
+      <div className={styles.type}>
+        <div className={styles.typeTitle}>
+          <div>分类</div>
+          <div className={styles.typeSettingBtn}><a href="#">管理</a></div>
         </div>
-        <div className={`${styles.tagList} custom-scrollbar`}>
-          {tagList.map((item) => (
+        <div className={`${styles.typeList} custom-scrollbar`}>
+          {typeList.map((item) => (
             <Button
               type="text"
-              className={currentMenu === item.tag ? styles.activeMenu : ''}
-              key={item.tag}
-              onClick={() => handleTagClick(item.tag)}
+              className={currentMenu === item.type ? styles.activeMenu : ''}
+              key={item.type}
+              onClick={() => handleTypeClick(item.type)}
             >
-              <div className={styles.tagColor} style={{ backgroundColor: item.color }} />
-              {item.tag}
+              <div className={styles.typeColor} style={{ backgroundColor: item.color }} />
+              {item.type}
             </Button>
           ))}
         </div>

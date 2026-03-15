@@ -5,7 +5,7 @@ import GlobalLayout from "@/layout/GlobalLayout";
 import TodoList from "@/pages/todoList/TodoList";
 import Overview from "@/pages/overview/Overview";
 import Collect from "@/pages/collect/Collect";
-import TagView from "@/pages/tagView/TagView";
+import TypeView from "@/pages/typeView/TypeView";
 import Recycle from "@/pages/recycle/Recycle";
 import Statistics from "@/pages/statistics/Statistics";
 import Login from "@/pages/login/Login";
@@ -56,8 +56,8 @@ const routes: RouteObject[] = [
           //   }
           // },
           {
-            path: '/menu/tag',
-            element: <TagView />,
+            path: '/menu/type',
+            element: <TypeView />,
           },
           {
             path: '/menu/recycle',
