@@ -13,12 +13,12 @@ const TodoList = () => {
   const [todoList, setTodoList] = useState<TodoItem[]>([])
   const [todoInputVal, setTodoInputVal] = useState<string>('')
   const [nowTime, setNowTime] = useState<string>('')
-  const [visibleTodoSetting, setVisibleTodoSetting] = useState<boolean>(false)
+  const [visibleTodoEdit, setVisibleTodoEdit] = useState<boolean>(false)
   const [pickType, setPickType] = useState<number>(0)
   const [date, setDate] = useState('');
 
   // 获取待办列表
-  const getTodoList = useCallback( async () => {
+  const getTodoList = async () => {
     const arr = await window.electronAPI?.dbQuery('todo.getTodosByDate',{
       userId: userInfo.id,
       date
@@ -26,20 +26,20 @@ const TodoList = () => {
     if (Array.isArray(arr)) {
       setTodoList(arr)
     }
-  }, [userInfo.id, date])
+  }
   // 回车-添加待办
   const handleEnter = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     const {value} = e.target as HTMLInputElement
     if (!value.trim()) return
     if (e.code === 'Enter') {
-      const item = {
+      const newTodo = {
         userId: userInfo.id,
         content: value.trim(),
         type: pickType,
       }
-      const res = await window.electronAPI?.dbQuery('todo.addTodo', item)
+      const res = await window.electronAPI?.dbQuery('todo.addTodo', newTodo)
       if(res.changes){
-        setTodoList([...todoList, item])
+        getTodoList()
         setTodoInputVal('')
       }else{
         message.warning('新增失败')
@@ -49,7 +49,7 @@ const TodoList = () => {
 
   useEffect(() => {
     getTodoList()
-  }, [getTodoList])
+  }, [date])
 
   useEffect(() => {
     setDate(dayjs().format('YYYY-MM-DD'))
@@ -83,13 +83,13 @@ const TodoList = () => {
       <TodoCenter
         todoList={todoList}
         getTodoList={getTodoList}
-        setVisibleTodoSetting={setVisibleTodoSetting}
+        setVisibleTodoEdit={setVisibleTodoEdit}
       />
       <div className={styles.todoFooter}>{nowTime}</div>
-      {/*待办项配置区域*/}
+      {/*待办项编辑区域*/}
       <TodoSetting
-        visible={visibleTodoSetting}
-        setVisible={setVisibleTodoSetting}
+        visible={visibleTodoEdit}
+        setVisible={setVisibleTodoEdit}
       />
     </div>
   )

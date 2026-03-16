@@ -7,22 +7,26 @@ import {Checkbox} from "antd";
 type TodoCenterProps = {
   todoList: TodoItem[],
   getTodoList: () => void,
-  setVisibleTodoSetting: (visible: boolean) => void
+  setVisibleTodoEdit: (visible: boolean) => void
 }
 
 const TodoCenter = (props: TodoCenterProps) => {
-  const {todoList, getTodoList, setVisibleTodoSetting} = props
+  const {todoList, getTodoList, setVisibleTodoEdit} = props
 
+  // 修改待办状态
   const changeTodoStatus = async (checked: boolean, item: TodoItem) => {
-    item.done = checked ? 1 : 0
-    const res = await window.electronAPI?.dbQuery('todo.updateTodo', item)
-    if(res.changes){
+    const updatedItem = {
+      ...item,
+      done: checked ? 1 : 0
+    };
+    const res = await window.electronAPI?.dbQuery('todo.updateTodo', updatedItem)
+    if(res?.changes){
       getTodoList()
     }
   }
-
-  const openTodoSetting = (item: TodoItem) => {
-    setVisibleTodoSetting(true)
+  // 打开待办编辑
+  const openTodoEdit = (item: TodoItem) => {
+    setVisibleTodoEdit(true)
   }
 
   return (
@@ -33,7 +37,7 @@ const TodoCenter = (props: TodoCenterProps) => {
             key={index}
             className={styles.todoItem}
             onClick={(e) => {
-              openTodoSetting(item)
+              openTodoEdit(item)
             }}
           >
             {/* 左侧 Checkbox */}
