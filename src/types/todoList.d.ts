@@ -5,6 +5,7 @@ type TodoItem = {
   done?: number
   type?: number
   desc?: string
+  priority?: number
 }
 
 type TodoSettingProps = {

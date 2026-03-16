@@ -3,6 +3,7 @@ import {TodoCenterProps, TodoItem} from "@/types/todoList";
 import styles from "@/pages/todoList/style.module.less";
 import React from "react";
 import {Checkbox} from "antd";
+import {PRIORITY_MAP} from "@/global/Global"
 
 type TodoCenterProps = {
   todoList: TodoItem[],
@@ -10,8 +11,10 @@ type TodoCenterProps = {
   setVisibleTodoEdit: (visible: boolean) => void
 }
 
+
 const TodoCenter = (props: TodoCenterProps) => {
   const {todoList, getTodoList, setVisibleTodoEdit} = props
+
 
   // 修改待办状态
   const changeTodoStatus = async (checked: boolean, item: TodoItem) => {
@@ -32,6 +35,7 @@ const TodoCenter = (props: TodoCenterProps) => {
   return (
     <div className={`${styles.todoList} custom-scrollbar`}>
       {todoList.map((item, index) => {
+        const priorityInfo = PRIORITY_MAP[item.priority as keyof typeof PRIORITY_MAP];
         return (
           <div
             key={index}
@@ -54,10 +58,17 @@ const TodoCenter = (props: TodoCenterProps) => {
               />
             </div>
 
-            {/* 右侧内容：标题 + 描述 */}
+            {/* 右侧内容：内容 + 描述 */}
             <div className={styles.contentWrapper}>
-              <div className={` ${styles.content}  ${item.done ? styles.contentDone : ''}`}>
-                {item.content}
+              <div className={styles.contentRow}>
+                <div className={`${styles.content} ${item.done ? styles.contentDone : ''}`}>{item.content}</div>
+                <div className={styles.actions}>
+                  {priorityInfo &&
+                    <div className={styles.priority} style={{backgroundColor: priorityInfo.color}}>
+                      {priorityInfo.name}
+                    </div>
+                  }
+                </div>
               </div>
               <p className={styles.description}>{item.desc}</p>
             </div>
