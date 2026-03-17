@@ -1,27 +1,29 @@
-import {DatePicker, Input, message} from "antd";
+import {DatePicker, Input, message, Select} from "antd";
 import styles from "./style.module.less"
 import React, {useCallback, useEffect, useState} from "react";
+import dayjs from "dayjs";
+const Option = Select;
 import {TodoItem} from "@/types/todoList";
 import TodoCenter from "@/pages/todoList/TodoCenter";
 import TodoSetting from "@/pages/todoList/TodoSetting";
 import {PlusOutlined} from "@ant-design/icons";
-import dayjs from "dayjs";
 import CustomWeekPicker from "./components/CustomWeekPicker/CustomWeekPicker"
 
 const TodoList = () => {
   const userInfo = JSON.parse(localStorage.getItem('user') || '{}');
   const [todoList, setTodoList] = useState<TodoItem[]>([])
   const [todoInputVal, setTodoInputVal] = useState<string>('')
-  const [nowTime, setNowTime] = useState<string>('')
   const [visibleTodoEdit, setVisibleTodoEdit] = useState<boolean>(false)
   const [pickType, setPickType] = useState<number>(0)
   const [date, setDate] = useState('');
+  const [sortType, setSortType] = useState<number>(1) // 1 创建时间倒序 2 优先级排序 3 自定义排序
 
   // 获取待办列表
   const getTodoList = async () => {
     const arr = await window.electronAPI?.dbQuery('todo.getTodosByDate',{
       userId: userInfo.id,
-      date
+      belongDay: date,
+      sortType
     })
     if (Array.isArray(arr)) {
       setTodoList(arr)
@@ -35,6 +37,7 @@ const TodoList = () => {
       const newTodo = {
         userId: userInfo.id,
         content: value.trim(),
+        belongDay: date,
         type: pickType,
       }
       const res = await window.electronAPI?.dbQuery('todo.addTodo', newTodo)
@@ -49,7 +52,7 @@ const TodoList = () => {
 
   useEffect(() => {
     getTodoList()
-  }, [date])
+  }, [date,sortType])
 
   useEffect(() => {
     setDate(dayjs().format('YYYY-MM-DD'))
@@ -64,6 +67,15 @@ const TodoList = () => {
           <CustomWeekPicker
             onDateSelect={(date)=> setDate(date)}
           />
+          <Select
+            style={{width: '120px', marginLeft: '10px'}}
+            value={sortType}
+            onChange={(value) => setSortType(value)}
+          >
+            <Option value={1}>按创建时间排序</Option>
+            <Option value={2}>按优先级排序</Option>
+            <Option value={3}>自定义排序</Option>
+          </Select>
         </div>
       </div>
       {/*输入区域*/}
@@ -82,10 +94,11 @@ const TodoList = () => {
       {/*待办项区域*/}
       <TodoCenter
         todoList={todoList}
+        setTodoList={setTodoList}
         getTodoList={getTodoList}
+        setSortType={setSortType}
         setVisibleTodoEdit={setVisibleTodoEdit}
       />
-      <div className={styles.todoFooter}>{nowTime}</div>
       {/*待办项编辑区域*/}
       <TodoSetting
         visible={visibleTodoEdit}

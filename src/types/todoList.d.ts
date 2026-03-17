@@ -1,5 +1,6 @@
 type TodoItem = {
   id?: number
+  tid: string
   userId?: number
   content: string
   done?: number

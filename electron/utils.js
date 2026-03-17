@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 /**
  * 通用接口返回模版
  * @param data {any} 数据
@@ -13,7 +14,15 @@ function responseTemplate(data, code = 200, message = 'success') {
   }
 }
 
+// 生成一个8位随机id
+function generateId() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(8)))
+    .map(b => (b % 62).toString(36))
+    .join('');
+}
+
 
 module.exports = {
-  responseTemplate
+  responseTemplate,
+  generateId
 }

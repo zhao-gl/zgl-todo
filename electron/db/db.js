@@ -51,15 +51,18 @@ class SQLiteDatabase {
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS tb_todos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tid TEXT NOT NULL,
         user_id INTEGER NOT NULL,
         content TEXT NOT NULL,
         desc TEXT,
         done INTEGER DEFAULT 0,
         type INTEGER,
         tags TEXT,
+        sort INTEGER DEFAULT 0,
         priority INTEGER,
         is_deleted INTEGER DEFAULT 0,
         is_collect INTEGER DEFAULT 0,
+        belong_day TEXT NOT NULL,
         created_at DATETIME DEFAULT (datetime('now', 'localtime')),
         updated_at DATETIME DEFAULT (datetime('now', 'localtime')),
         deleted_at DATETIME,
@@ -90,32 +93,132 @@ class SQLiteDatabase {
   /**
    * 新增待办事项
    * @param userId {number} 用户 ID
+   * @param tid {string} 待办id
    * @param content {string} 待办内容
+   * @param belongDay
    * @param type {number} 类别
    * @returns {StatementResultingChanges}
    */
-  dbAddTodo(userId, content, type) {
+  dbAddTodo(userId, tid, content, belongDay, type) {
     return this.db.prepare(`
-      INSERT INTO tb_todos (user_id, content, type)
-      VALUES (?, ?, ?)
-    `).run(userId, content, type);
+      INSERT INTO tb_todos (user_id, tid, content, belong_day, type)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(userId, tid, content, belongDay, type);
   }
 
   /**
-   * 根据日期获取待办项
-   * @param userId {number} 用户 ID
-   * @param date {string} 日期
+   * 更新待办事项（支持部分字段更新）
+   * @param {Object} params - 必须包含 id，其他字段可选
+   * @returns {StatementResultingChanges}
+   */
+  dbUpdateTodo(params) {
+    const {id, ...updateFields} = params;
+    // 1. 过滤掉 undefined / null（根据业务决定是否允许设为 null）
+    const validFields = Object.fromEntries(
+      Object.entries(updateFields).filter(([_, value]) => value !== undefined)
+    );
+    // 2. 如果没有要更新的字段，直接返回
+    if (Object.keys(validFields).length === 0) {
+      return {changes: 0};
+    }
+    // 3. 构建 SET 子句
+    const setClause = Object.keys(validFields)
+      .map(field => `${field} = ?`)
+      .join(', ');
+    // 4. 准备参数数组（顺序与 SET 子句一致）
+    const values = [...Object.values(validFields), id];
+    // 5. 执行动态 SQL
+    const sql = `
+      UPDATE tb_todos
+      SET ${setClause},
+          updated_at = datetime('now', 'localtime')
+      WHERE id = ?
+    `;
+    return this.db.prepare(sql).run(...values);
+  }
+
+  /**
+   * 根据日期获取待办
+   * @param {number} userId - 用户 ID
+   * @param {string} belongDay - 日期（格式：YYYY-MM-DD）
+   * @param {number} sortType - 排序类型：1=创建时间倒序，2=优先级排序，3=自定义排序
    * @returns {Record<string, SQLOutputValue>[]}
    */
-  dbGetTodosByDate({userId, date}) {
-    return this.db.prepare(`
+  dbTodosByDate({userId, belongDay, sortType}) {
+    // 定义合法的排序选项（防止 SQL 注入）
+    const sortOptions = {
+      1: 'created_at DESC',
+      2: 'priority ASC, created_at DESC', // 假设 priority 字段存在，值越小优先级越高
+      3: 'sort ASC, created_at DESC'       // 自定义排序字段 `sort`
+    };
+    // 验证 sortType 是否合法
+    if (!sortOptions.hasOwnProperty(sortType)) {
+      throw new Error(`Invalid sortType: ${sortType}. Expected 1, 2, or 3.`);
+    }
+    const orderByClause = sortOptions[sortType];
+    const sql = `
       SELECT * FROM tb_todos
       WHERE user_id = ?
-        AND DATE(created_at) = ?
+        AND belong_day = ?
         AND is_deleted = 0
-      ORDER BY created_at DESC
-    `).all([userId, date]);
+      ORDER BY ${orderByClause}
+    `;
+    return this.db.prepare(sql).all(userId, belongDay);
   }
+
+  /**
+   * 根据优先级排序
+   * @param userId {number} 用户 ID
+   * @param priority {number} 优先级 (0-4)
+   * @returns {Record<string, SQLOutputValue>[]}
+   */
+  dbTodosByPriority(userId, priority) {
+    return this.db.prepare(`
+      SELECT *
+      FROM tb_todos
+      WHERE user_id = ?
+        AND priority = ?
+        AND is_deleted = 0
+      ORDER BY priority DESC`
+    ).all(userId, priority);
+  }
+
+  /**
+   * 根据 sort 排序
+   * @param userId {number} 用户 ID
+   * @returns {Record<string, SQLOutputValue>[]}
+   */
+  dbTodosBySort({userId}) {
+    return this.db.prepare(`
+      SELECT *
+      FROM tb_todos
+      WHERE user_id = ?
+        AND is_deleted = 0
+      ORDER BY sort ASC, created_at ASC`
+    ).all(userId);
+  }
+
+  /**
+   * 仅更新待办事项的排序字段（sort）
+   * @param {Array} todos - 待办事项列表
+   * @returns {StatementResultingChanges}
+   */
+  batchUpdateSort(todos){
+    let stmt = this.db.prepare(`
+      UPDATE tb_todos
+      SET sort = ?,
+          updated_at = datetime('now', 'localtime')
+      WHERE id = ?
+    `);
+
+    const transaction = this.db.transaction((items) => {
+      for (const { id, sort } of items) {
+        stmt.run(sort, id);
+      }
+    });
+
+    transaction(todos);
+  };
 
   /**
    * 根据是否完成筛选待办事项
@@ -136,26 +239,6 @@ class SQLiteDatabase {
     `);
     // @ts-ignore
     return stmt.all([userId, done]);
-  }
-
-  /**
-   * 更新待办事项
-   * @param params {Object} 更新数据
-   * @returns {StatementResultingChanges}
-   */
-  dbUpdateTodo({id, content, desc, done, type, tags, priority, is_deleted, is_collect}) {
-    return this.db.prepare(`
-      UPDATE tb_todos
-      SET content    = ?,
-          desc       = ?,
-          done       = ?,
-          type       = ?,
-          tags       = ?,
-          priority   = ?,
-          is_deleted = ?,
-          is_collect = ?
-      WHERE id = ?
-    `).run(content, desc, done, type, tags, priority, is_deleted, is_collect, id);
   }
 
   /**
@@ -214,30 +297,6 @@ class SQLiteDatabase {
       SET is_collect = ?
       WHERE id = ?
     `).run(isCollect ? 1 : 0, id);
-  }
-
-  /**
-   * 根据优先级获取待办事项
-   * @param userId {number} 用户 ID
-   * @param priority {number} 优先级 (0-4)
-   * @returns {Record<string, SQLOutputValue>[]}
-   */
-  dbGetTodosByPriority(userId, priority) {
-    return this.db.prepare('' +
-      'SELECT * FROM tb_todos WHERE user_id = ? AND priority = ? AND is_deleted = 0 ORDER BY created_at DESC'
-    ).all(userId, priority);
-  }
-
-  /**
-   * 根据标签获取待办事项
-   * @param userId {number} 用户 ID
-   * @param tags {string} 标签
-   * @returns {Record<string, SQLOutputValue>[]}
-   */
-  dbGetTodosByTag(userId, tags) {
-    return this.db.prepare('' +
-      'SELECT * FROM tb_todos WHERE user_id = ? AND tags = ? AND is_deleted = 0 ORDER BY created_at DESC'
-    ).all(userId, tags);
   }
 
   // ================== 用户操作 =================

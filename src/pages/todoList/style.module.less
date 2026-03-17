@@ -26,10 +26,18 @@
   .todoItem {
     display: flex;
     align-items: flex-start; // 顶部对齐
-    padding: 12px;
+    padding: 12px 12px 12px 0;
     border-radius: 2px;
     &:hover {
       background-color: #fafafa;
+    }
+    .dragHandle {
+      cursor: grab;
+      padding: 0 8px;
+      user-select: none;
+      &:active {
+        cursor: grabbing;
+      }
     }
     .checkboxWrapper {
       margin-right: 12px;

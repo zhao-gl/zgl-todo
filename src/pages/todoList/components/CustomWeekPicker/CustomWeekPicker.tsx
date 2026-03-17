@@ -132,7 +132,9 @@ const CustomWeekPicker: React.FC<CustomWeekPickerProps> = (props) => {
                   <button
                     onClick={() => {
                       setSelectedDate(day);
-                      onDateSelect?.(dayjs(day).format('YYYY-MM-DD'));
+                      if (onDateSelect) {
+                        onDateSelect(dayjs(day).format('YYYY-MM-DD'));
+                      }
                     }}
                     className={`${styles.dayButton} ${isSelected ? styles.selected : ''} ${isToday ? styles.today : ''}`}
                   >
