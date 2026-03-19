@@ -16,8 +16,9 @@ function responseTemplate(data, code = 200, message = 'success') {
 
 // 生成一个8位随机id
 function generateId() {
+  const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   return Array.from(crypto.getRandomValues(new Uint8Array(8)))
-    .map(b => (b % 62).toString(36))
+    .map(b => chars[b % chars.length])
     .join('');
 }
 

@@ -243,15 +243,17 @@ class SQLiteDatabase {
 
   /**
    * 软删除待办事项
-   * @param id {number} 待办 ID
+   * @param tid {number} 待办 ID
    * @returns {StatementResultingChanges}
    */
-  dbDeleteTodo(id) {
+  dbDeleteTodo(tid) {
     return this.db.prepare(`
       UPDATE tb_todos
-      SET is_deleted = 1
-      WHERE id = ?
-    `).run(id);
+      SET is_deleted = 1,
+          deleted_at = datetime('now', 'localtime'),
+          destroy_at = datetime('now', 'localtime', '+30 days')
+      WHERE tid = ?
+    `).run(tid);
   }
 
   /**

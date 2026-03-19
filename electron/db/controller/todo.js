@@ -13,8 +13,8 @@ class TodoController {
   }
 
   // 删除待办事项
-  deleteTodo(id) {
-    return this.todoDao.dbDeleteTodo(id);
+  deleteTodo(tid) {
+    return this.todoDao.dbDeleteTodo(tid);
   }
 
   // 更新待办事项

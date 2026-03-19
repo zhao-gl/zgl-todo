@@ -21,7 +21,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import {HolderOutlined} from "@ant-design/icons";
+import {DeleteOutlined, HolderOutlined} from "@ant-design/icons";
 
 // 单个可排序项
 interface SortableItemProps {
@@ -29,9 +29,10 @@ interface SortableItemProps {
   item: TodoItem;
   onEdit: (item: TodoItem) => void;
   onChangeStatus: (checked: boolean, item: TodoItem) => void;
+  onDelete: (tid: string) => void;
 }
 
-const SortableItem = ({ id, item, onEdit, onChangeStatus }: SortableItemProps) => {
+const SortableItem = ({ id, item, onEdit, onChangeStatus, onDelete }: SortableItemProps) => {
   const {
     attributes,
     listeners,
@@ -85,11 +86,19 @@ const SortableItem = ({ id, item, onEdit, onChangeStatus }: SortableItemProps) =
           <div className={`${styles.content} ${item.done ? styles.contentDone : ''}`}>
             {item.content}
           </div>
-          {priorityInfo && (
-            <div className={styles.priority} style={{ backgroundColor: priorityInfo.color }}>
-              {priorityInfo.name}
+          <div className={styles.actions}>
+            {priorityInfo && (
+              <div className={styles.priority} style={{ backgroundColor: priorityInfo.color }}>
+                {priorityInfo.name}
+              </div>
+            )}
+            <div className={styles.delete} onClick={(e) => {
+              e.stopPropagation();
+              onDelete(item.tid)
+            }}>
+              <DeleteOutlined />
             </div>
-          )}
+          </div>
         </div>
         <p className={styles.description}>{item.desc}</p>
       </div>
@@ -124,13 +133,13 @@ const TodoCenter = (props: TodoCenterProps) => {
   const openTodoEdit = (item: TodoItem) => {
     setVisibleTodoEdit(true)
   }
-  // 配置传感器（支持鼠标、触摸、键盘）
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  // 删除待办
+  const deleteTodo = async (tid: string) => {
+    const res = await window.electronAPI?.dbQuery('todo.deleteTodo', tid)
+    if(res?.changes){
+      getTodoList()
+    }
+  }
   // 拖拽结束
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -157,7 +166,13 @@ const TodoCenter = (props: TodoCenterProps) => {
       setTodoList(todoList);
     }
   };
-
+  // 配置传感器（支持鼠标、触摸、键盘）
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   return (
     <div className={`${styles.todoList} custom-scrollbar`}>
@@ -177,6 +192,7 @@ const TodoCenter = (props: TodoCenterProps) => {
               item={item}
               onEdit={openTodoEdit}
               onChangeStatus={changeTodoStatus}
+              onDelete={deleteTodo}
             />
           ))}
         </SortableContext>

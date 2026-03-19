@@ -14,6 +14,7 @@ const CustomWeekPicker: React.FC<CustomWeekPickerProps> = (props) => {
   // currentDate 决定当前视图显示哪一周
   const [currentViewDate, setCurrentViewDate] = useState<Date>(initialSelectedDate || new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(initialSelectedDate || null);
+  const [customSelectedDate, setCustomSelectedDate] = useState<Date | null>(null);
 
   // 获取当前视图周一的函数 (纯函数)
   const getStartOfWeek = (date: Date): Date => {
@@ -104,7 +105,10 @@ const CustomWeekPicker: React.FC<CustomWeekPickerProps> = (props) => {
       <div className={styles.daysWrapper}>
         {/* 今天 */}
         <Button
-          onClick={() => jumpToDate(dayjs())}
+          onClick={() => {
+            setCustomSelectedDate(null)
+            jumpToDate(dayjs())
+          }}
           icon={<span>☀</span>}
           type="text"
         />
@@ -131,6 +135,7 @@ const CustomWeekPicker: React.FC<CustomWeekPickerProps> = (props) => {
                 <div className={styles.dayItem}>
                   <button
                     onClick={() => {
+                      setCustomSelectedDate(null)
                       setSelectedDate(day);
                       if (onDateSelect) {
                         onDateSelect(dayjs(day).format('YYYY-MM-DD'));
@@ -159,7 +164,9 @@ const CustomWeekPicker: React.FC<CustomWeekPickerProps> = (props) => {
           placeholder='自定义日期'
           showNow={false}
           style={{marginBottom: -2}}
+          value={customSelectedDate}
           onChange={(date)=>{
+            setCustomSelectedDate(date)
             if(date){
               jumpToDate(date)
             }else{
