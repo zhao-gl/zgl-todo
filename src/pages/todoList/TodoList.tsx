@@ -17,6 +17,16 @@ const TodoList = () => {
   const [pickType, setPickType] = useState<number>(0)
   const [date, setDate] = useState('');
   const [sortType, setSortType] = useState<number>(1) // 1 创建时间倒序 2 优先级排序 3 自定义排序
+  const [todoItem, setTodoItem] = useState<TodoItem>({
+    id: 0,
+    userId: 0,
+    tid: "-",
+    content: "-",
+    desc: "-",
+    done: 0,
+    priority: 0,
+    type: 0
+  })
 
   // 获取待办列表
   const getTodoList = async () => {
@@ -97,12 +107,14 @@ const TodoList = () => {
         setTodoList={setTodoList}
         getTodoList={getTodoList}
         setSortType={setSortType}
+        setTodoItem={setTodoItem}
         setVisibleTodoEdit={setVisibleTodoEdit}
       />
       {/*待办项编辑区域*/}
       <TodoSetting
         visible={visibleTodoEdit}
         setVisible={setVisibleTodoEdit}
+        todoItem={todoItem}
       />
     </div>
   )

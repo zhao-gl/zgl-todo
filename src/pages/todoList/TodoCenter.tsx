@@ -112,11 +112,12 @@ type TodoCenterProps = {
   setTodoList: (todoList: TodoItem[]) => void
   getTodoList: () => void,
   setSortType: (sortType: number) => void,
+  setTodoItem: (item: TodoItem) => void
   setVisibleTodoEdit: (visible: boolean) => void
 }
 
 const TodoCenter = (props: TodoCenterProps) => {
-  const {todoList, setTodoList, getTodoList, setSortType, setVisibleTodoEdit} = props
+  const {todoList, setTodoList, getTodoList, setSortType, setTodoItem, setVisibleTodoEdit} = props
 
   // 修改待办状态
   const changeTodoStatus = async (checked: boolean, item: TodoItem) => {
@@ -131,6 +132,7 @@ const TodoCenter = (props: TodoCenterProps) => {
   }
   // 打开待办编辑
   const openTodoEdit = (item: TodoItem) => {
+    setTodoItem(item)
     setVisibleTodoEdit(true)
   }
   // 删除待办

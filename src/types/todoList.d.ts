@@ -7,13 +7,7 @@ type TodoItem = {
   type?: number
   desc?: string
   priority?: number
-}
-
-type TodoSettingProps = {
-  visible: boolean,
-  setVisible?: (visible: boolean) => void
-  // todoList: TodoItem[]
-  // setTodoList: (todoList: TodoItem[]) => void
+  belong_day?: string
 }
 
 export {
