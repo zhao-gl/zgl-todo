@@ -2,7 +2,6 @@ import {DatePicker, Input, message, Select} from "antd";
 import styles from "./style.module.less"
 import React, {useCallback, useEffect, useState} from "react";
 import dayjs from "dayjs";
-const Option = Select;
 import {TodoItem} from "@/types/todoList";
 import TodoCenter from "@/pages/todoList/TodoCenter";
 import TodoSetting from "@/pages/todoList/TodoSetting";
@@ -81,11 +80,12 @@ const TodoList = () => {
             style={{width: '120px', marginLeft: '10px'}}
             value={sortType}
             onChange={(value) => setSortType(value)}
-          >
-            <Option value={1}>按创建时间排序</Option>
-            <Option value={2}>按优先级排序</Option>
-            <Option value={3}>自定义排序</Option>
-          </Select>
+            options={[
+              {value: 1, label: '按创建时间排序'},
+              {value: 2, label: '按优先级排序'},
+              {value: 3, label: '自定义排序'},
+            ]}
+          />
         </div>
       </div>
       {/*输入区域*/}
@@ -115,6 +115,7 @@ const TodoList = () => {
         visible={visibleTodoEdit}
         setVisible={setVisibleTodoEdit}
         todoItem={todoItem}
+        getTodoList={getTodoList}
       />
     </div>
   )

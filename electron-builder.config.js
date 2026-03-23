@@ -84,7 +84,7 @@ module.exports = {
       'zip'
     ],
     category: 'public.app-category.productivity',
-    icon: 'build/icon.icns',
+    // icon: 'build/icon.icns',
     hardenedRuntime: true,
     gatekeeperAssess: false,
     entitlements: 'build/entitlements.mac.plist',

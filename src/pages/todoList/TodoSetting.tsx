@@ -1,12 +1,15 @@
-import {Drawer, Form, Input, Radio} from "antd";
+import {DatePicker, Drawer, Form, Input, Radio} from "antd";
 import {useEffect, useState} from "react";
 import {TodoItem} from "@/types/todoList";
 import {PRIORITY_MAP} from "@/global/Global"
+import dayjs from "dayjs";
+import styles from './style.module.less'
 
 type TodoSettingProps = {
   visible: boolean,
   setVisible?: (visible: boolean) => void
   todoItem: TodoItem
+  getTodoList: () => void
   // todoList: TodoItem[]
   // setTodoList: (todoList: TodoItem[]) => void
 }
@@ -17,11 +20,19 @@ const defaultPriorityOptions = [
   { label: PRIORITY_MAP[3].name, value: 3, activeColor: PRIORITY_MAP[3].color },
 ]
 
+const defBelongDayOptions = [
+  { label: '今天', value: 1},
+  { label: '明天', value: 2},
+  { label: '自定义', value: 99},
+]
+
 const TodoSetting = (props: TodoSettingProps) => {
-  const { visible, setVisible, todoItem } = props
+  const { visible, setVisible, todoItem, getTodoList } = props
   const [form] = Form.useForm()
   const [typeOptions, setTypeOptions] = useState<any[]>([]);
   const [priorityOptions, setPriorityOptions] = useState(defaultPriorityOptions);
+  const [belongDayOptions, setBelongDayOptions] = useState(defBelongDayOptions);
+  const [customBelongDay, setCustomBelongDay] = useState<any>('')
 
   // 获取分类
   const getTypeOptions = async () => {
@@ -37,15 +48,37 @@ const TodoSetting = (props: TodoSettingProps) => {
 
   // 回显表单值
   const echoFormValues = () => {
-    form.setFieldsValue({
-      content: todoItem.content,
-      desc: todoItem.desc
-    })
+    setCustomBelongDay(dayjs(todoItem.belong_day))
+    form.setFieldsValue(todoItem)
   };
 
   // 更新待办
-  const updateTodoItem = (_: any, allValues: any) => {
-    console.log(allValues)
+  const updateTodoItem = async (_: any, allValues: any) => {
+    const newTodoItem = {...todoItem, ...allValues}
+    console.log("newTodoItem:", newTodoItem)
+    // 处理所属日期
+    if(newTodoItem.belong_day){
+      const value = newTodoItem.belong_day
+      switch (value) {
+        case 1:
+          newTodoItem.belong_day = dayjs().format('YYYY-MM-DD')
+          break;
+        case 2:
+          newTodoItem.belong_day = dayjs().add(1, 'day').format('YYYY-MM-DD')
+          break;
+        default:
+          console.log(newTodoItem.belong_day)
+          break;
+      }
+    }
+    const res = await window.electronAPI?.dbQuery?.('todo.updateTodo', newTodoItem)
+    try {
+      if (res.changes > 0) {
+        getTodoList()
+      }
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   // 改变分类
@@ -68,17 +101,17 @@ const TodoSetting = (props: TodoSettingProps) => {
     }))
   };
 
-  useEffect(() => {
-    if (todoItem) {
-      echoFormValues()
-    }
-  }, [todoItem])
+  // 改变所属日期
+  // const changeBelongDay = (e: any) => {
+  //   const value = e.target.value
+  // };
+
   useEffect(() => {
     if (visible) {
       getTypeOptions()
+      if (todoItem) echoFormValues()
     }else{
-      form.resetFields()
-      setPriorityOptions(defaultPriorityOptions)
+      setPriorityOptions(defaultPriorityOptions) // 重置优先级
     }
   }, [visible])
 
@@ -96,7 +129,8 @@ const TodoSetting = (props: TodoSettingProps) => {
       maskClosable={true}
       closable={false}
       onClose={() => {
-        if (setVisible) setVisible(false)
+        form.resetFields();
+        if (setVisible) setVisible(false);
       }}
     >
       <Form form={form} labelCol={{span: 4}} labelAlign="left" onValuesChange={updateTodoItem}>
@@ -104,30 +138,78 @@ const TodoSetting = (props: TodoSettingProps) => {
           <Input placeholder="请输入待办内容" variant="underlined" />
         </Form.Item>
         <Form.Item name="desc">
-          <Input placeholder="请输入描述" variant="underlined" />
+          <Input.TextArea
+            placeholder="请输入描述"
+            variant="underlined"
+            autoSize={{ minRows: 1, maxRows: 3 }}
+            maxLength={100}
+          />
+        </Form.Item>
+        <Form.Item name="belong_day" label="移动到">
+          <Radio.Group
+            block
+            size="small"
+            optionType="button"
+            buttonStyle="outline"
+          >
+            {defBelongDayOptions.map((option) => {
+              if(option.value === 99) {
+                return (
+                  <DatePicker
+                    key={option.value}
+                    style={{height: '28px', marginTop: '2px'}}
+                    value={customBelongDay}
+                    showNow={false}
+                    onChange={(date)=>{
+                      setCustomBelongDay(date);
+                      const currentValues = form.getFieldsValue();
+                      updateTodoItem(null, { ...currentValues, belong_day: dayjs(date).format('YYYY-MM-DD') });
+                      // setFieldValue 保持表单状态同步
+                      form.setFieldValue('belong_day', date);
+                    }}
+                  />
+                )
+              }
+              return (
+                <Radio.Button
+                  key={option.value}
+                  value={option.value}
+                  style={{borderRadius: '30px', margin: '4px 4px 0 0'}}
+                >
+                  {option.label}
+                </Radio.Button>
+              )
+            })}
+          </Radio.Group>
         </Form.Item>
         <Form.Item name="type" label="分类">
           <Radio.Group
             block
-            options={typeOptions}
+            size="small"
             onChange={changeType}
             optionType="button"
             buttonStyle="outline"
-          />
+          >
+            {typeOptions.map((option) => (
+              <Radio.Button
+                key={option.value}
+                value={option.value}
+                style={{ borderRadius: '30px', margin: '0 4px' }}
+              >
+                {option.label}
+              </Radio.Button>
+            ))}
+          </Radio.Group>
         </Form.Item>
         <Form.Item name="priority" label="优先级">
           <Radio.Group
             block
+            size="small"
             options={priorityOptions}
             onChange={changePriority}
             optionType="button"
             buttonStyle="outline"
           />
-        </Form.Item>
-        <Form.Item name="belong_day" label="移动到">
-          <Radio name="belong_day" value={0}>今天</Radio>
-          <Radio name="belong_day" value={1}>明天</Radio>
-          <Radio name="belong_day" value={3}>自定义</Radio>
         </Form.Item>
       </Form>
     </Drawer>

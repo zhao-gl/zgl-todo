@@ -87,11 +87,13 @@ const SortableItem = ({ id, item, onEdit, onChangeStatus, onDelete }: SortableIt
             {item.content}
           </div>
           <div className={styles.actions}>
+            {/*优先级*/}
             {priorityInfo && (
               <div className={styles.priority} style={{ backgroundColor: priorityInfo.color }}>
                 {priorityInfo.name}
               </div>
             )}
+            {/*删除*/}
             <div className={styles.delete} onClick={(e) => {
               e.stopPropagation();
               onDelete(item.tid)
@@ -178,27 +180,32 @@ const TodoCenter = (props: TodoCenterProps) => {
 
   return (
     <div className={`${styles.todoList} custom-scrollbar`}>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={todoList.map(i => i.tid)} // 确保 tid 是 string
-          strategy={verticalListSortingStrategy}
+      {todoList.length > 0 && (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
         >
-          {todoList.map(item => (
-            <SortableItem
-              key={item.tid}
-              id={item.tid}
-              item={item}
-              onEdit={openTodoEdit}
-              onChangeStatus={changeTodoStatus}
-              onDelete={deleteTodo}
-            />
-          ))}
-        </SortableContext>
-      </DndContext>
+          <SortableContext
+            items={todoList.map(i => i.tid)} // 确保 tid 是 string
+            strategy={verticalListSortingStrategy}
+          >
+            {todoList.map(item => (
+              <SortableItem
+                key={item.tid}
+                id={item.tid}
+                item={item}
+                onEdit={openTodoEdit}
+                onChangeStatus={changeTodoStatus}
+                onDelete={deleteTodo}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
+      )}
+      {todoList.length === 0 && (
+        <div className={styles.empty}></div>
+      )}
     </div>
   )
 };

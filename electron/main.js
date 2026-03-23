@@ -1,4 +1,4 @@
-const { app, Menu, BrowserWindow } = require('electron')
+const { app, Tray, Menu, BrowserWindow } = require('electron')
 const path = require('path')
 const {setIpcEventListener} = require('./ipc/ipc');
 const { performance } = require('perf_hooks');
@@ -32,6 +32,7 @@ console.log('应用程序启动');
 let mainWindow;
 let db;
 const isMac = process.platform === 'darwin';
+let tray = null;
 // 创建主窗口
 function createWindow () {
   console.log('正在创建主窗口');
@@ -40,6 +41,7 @@ function createWindow () {
     height: 800,
     minWidth: 1000,
     minHeight: 600,
+    icon: path.join(__dirname, 'build/icon_256x256.png'),
     frame: false, // 移除默认的菜单栏
     show: false,
     webPreferences: {
@@ -152,6 +154,16 @@ app.whenReady().then(async () => {
       console.log(`[PERFORMANCE] ${measure.name}: ${measure.duration}ms`);
     });
   }, 1000);
+
+  const iconPath = path.join(__dirname, 'build/icon_256x256.png');
+  // macOS 最好使用模板图像 (Template Image)，即黑白图片，系统会自动处理反色
+  // 如果是彩色图标，直接加载即可
+  const trayIcon = nativeImage.createFromPath(iconPath);
+  tray = new Tray(trayIcon);
+  const contextMenu = Menu.buildFromTemplate([
+    { label: '退出', click: () => app.quit() }
+  ]);
+  tray.setContextMenu(contextMenu);
 })
 
 // 监听应用程序激活事件（在macOS上，当没有打开的窗口时，重新创建一个窗口）
