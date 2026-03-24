@@ -1,5 +1,6 @@
-import {Menu, Modal, Form, Input, Button, message} from "antd";
-import {SettingOutlined, UserOutlined} from "@ant-design/icons";
+import {Menu, Modal, Form, Input, Button, message, Tag, Row, Col, ColorPicker} from "antd";
+import {GroupOutlined, PlusOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
+import type { ColorPickerProps, GetProp } from 'antd';
 import type { MenuProps } from 'antd';
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
@@ -9,6 +10,7 @@ type SettingsProps = {
   setOpen: (open: boolean) => void;
   defSettingArea: string;
 };
+type Color = Extract<GetProp<ColorPickerProps, 'value'>, string | { cleared: any }>;
 
 const Settings = (props: SettingsProps) => {
   const {open, setOpen, defSettingArea} = props;
@@ -18,6 +20,9 @@ const Settings = (props: SettingsProps) => {
   // 个人信息
   const [userForm] = Form.useForm();
   const [isChangePwd, setIsChangePwd] = useState(false); // 修改密码
+  // 分类管理
+  const [typesForm] = Form.useForm();
+  const [color, setColor] = useState<Color>('#fff');
   const items: MenuItem[] = [
     {
       key: '1',
@@ -25,14 +30,30 @@ const Settings = (props: SettingsProps) => {
       icon: <UserOutlined />,
     },
     {
-      type: 'divider',
+      key: '2',
+      label: '分类管理',
+      icon: <GroupOutlined />,
     },
     {
-      key: '2',
+      key: '3',
       label: '设置',
       icon: <SettingOutlined />,
     },
   ];
+
+  const submitTypes = async (values: any) => {
+    console.log(values)
+    const res = await window.electronAPI?.dbQuery(
+      'type.addType',
+      values.name
+    );
+    if(res?.changes === 1){
+      message.success('添加成功！');
+      typesForm.resetFields();
+    }else{
+      message.error('添加失败！');
+    }
+  };
 
   // 点击保存
   const handleOk = () => {
@@ -61,6 +82,9 @@ const Settings = (props: SettingsProps) => {
       })
     }
     if(activeKey === '2'){
+      console.log('分类管理')
+    }
+    if(activeKey === '3'){
       console.log('设置')
     }
   };
@@ -93,17 +117,17 @@ const Settings = (props: SettingsProps) => {
     >
       <div style={{display: 'flex', height: 'calc(100vh - 300px)'}}>
         <Menu
-          style={{ width: 180 }}
+          style={{ width: '30%' }}
           mode="inline"
           items={items}
           selectedKeys={selectedKeys}
           onSelect={(keys) => setSelectedKeys(keys.selectedKeys)}
         />
-        {/*个人信息*/}
-        <div style={{width: '100%', padding: '16px',marginLeft: '16px'}}>
+        <div style={{width: '100%', padding: '8px'}}>
+          {/*个人信息*/}
           {selectedKeys[0] === '1' &&
             <>
-              <Form form={userForm} labelCol={{span:4}}>
+              <Form form={userForm} labelCol={{ span: 4 }}>
                 <Form.Item label="用户名" name="username" rules={[{ required: true, message: '请输入用户名' }]}>
                   <Input placeholder="请输入用户名" />
                 </Form.Item>
@@ -160,8 +184,34 @@ const Settings = (props: SettingsProps) => {
               </div>
             </>
           }
+          {/*分类管理*/}
           {selectedKeys[0] === '2' &&
+            <>
+              <Form form={typesForm} style={{position: 'relative'}} onFinish={submitTypes}>
+                <Form.Item label="分类名称" name="name" rules={[{ required: true, message: '请输入分类名称' }]}>
+                  <Input style={{width: '80%'}} placeholder="请输入分类名称" />
+                </Form.Item>
+                <Form.Item label="分类颜色" name="color" rules={[{ required: true, message: '请选择分类颜色' }]}>
+                  <ColorPicker style={{width: '10%'}} />
+                </Form.Item>
+                <Button
+                  style={{width: '15%', marginLeft: '8px', position: 'absolute', right: '0', bottom: '2px'}}
+                  onClick={() => typesForm.submit()}
+                >添加</Button>
+              </Form>
+              <div style={{margin: '8px'}}>
+                <div>已有分类：</div>
+                <div>
+                  <Tag color="blue">分类1</Tag>
+                  <Tag color="blue">分类2</Tag>
+                  <Tag color="blue">分类3</Tag>
+                </div>
+              </div>
+            </>
+          }
+          {selectedKeys[0] === '3' &&
             <div>
+              设置
               {}
             </div>
           }

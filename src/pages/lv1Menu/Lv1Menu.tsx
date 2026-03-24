@@ -30,10 +30,10 @@ const Lv1Menu = () => {
     },
     {
       label: '设置',
-      key: '2',
+      key: '3',
       icon: <SettingOutlined />,
       onClick: () => {
-        openSetting('2')
+        openSetting('3')
       },
     },
     {
@@ -126,7 +126,14 @@ const Lv1Menu = () => {
       <div className={styles.type}>
         <div className={styles.typeTitle}>
           <div>分类</div>
-          <div className={styles.typeSettingBtn}><a href="#">管理</a></div>
+          <div className={styles.typeSettingBtn}>
+            <Button
+              type='link'
+              size='small'
+              style={{fontSize: '12px'}}
+              onClick={()=>openSetting('2')}
+            >管理</Button>
+          </div>
         </div>
         <div className={`${styles.typeList} custom-scrollbar`}>
           {typeList.map((item) => (
