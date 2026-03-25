@@ -14,5 +14,5 @@ type TodoItem = {
 export {
   TodoItem,
   TodoCenterProps,
-  TodoSettingProps
+  TodoEditingProps
 }

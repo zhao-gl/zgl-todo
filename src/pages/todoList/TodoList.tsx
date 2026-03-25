@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import {TodoItem} from "@/types/todoList";
 import {TypeItem} from "@/types/typeList";
 import TodoCenter from "@/pages/todoList/TodoCenter";
-import TodoSetting from "@/pages/todoList/TodoSetting";
+import TodoEditing from "@/pages/todoList/TodoEditing";
 import {PlusOutlined} from "@ant-design/icons";
 import CustomWeekPicker from "./components/CustomWeekPicker/CustomWeekPicker"
 
@@ -72,6 +72,7 @@ const TodoList = () => {
 
   useEffect(() => {
     getTodoList()
+    getTypeList()
   }, [date,sortType])
 
   useEffect(() => {
@@ -122,7 +123,7 @@ const TodoList = () => {
         setVisibleTodoEdit={setVisibleTodoEdit}
       />
       {/*待办项编辑区域*/}
-      <TodoSetting
+      <TodoEditing
         visible={visibleTodoEdit}
         setVisible={setVisibleTodoEdit}
         todoItem={todoItem}

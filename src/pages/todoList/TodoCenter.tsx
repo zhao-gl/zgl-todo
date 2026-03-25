@@ -49,7 +49,7 @@ const SortableItem = ({ id, item, onEdit, onChangeStatus, onDelete, typeColor }:
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    borderLeft: `1px solid ${typeColor}`,
+    borderLeft: `2px solid ${typeColor}`,
     // 移除内联样式，改用 className 控制外观
   };
 

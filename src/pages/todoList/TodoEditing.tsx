@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import styles from './style.module.less'
 import {TypeItem} from "@/types/typeList";
 
-type TodoSettingProps = {
+type TodoEditingProps = {
   visible: boolean,
   setVisible?: (visible: boolean) => void
   todoItem: TodoItem
@@ -28,7 +28,7 @@ const defBelongDayOptions = [
   { label: '自定义', value: 99},
 ]
 
-const TodoSetting = (props: TodoSettingProps) => {
+const TodoEditing = (props: TodoEditingProps) => {
   const { visible, setVisible, todoItem, typeList, getTodoList } = props
   const [form] = Form.useForm()
   const [typeOptions, setTypeOptions] = useState<any[]>(typeList);
@@ -61,7 +61,7 @@ const TodoSetting = (props: TodoSettingProps) => {
           break;
       }
     }
-    newTodoItem.type_color = typeOptions.find(item => item.id === newTodoItem.type)?.color
+    newTodoItem.type_color = typeOptions.find(item => item.id === newTodoItem.type_id)?.color
     const res = await window.electronAPI?.dbQuery?.('todo.updateTodo', newTodoItem)
     try {
       if (res.changes > 0) {
@@ -105,6 +105,9 @@ const TodoSetting = (props: TodoSettingProps) => {
       setPriorityOptions(defaultPriorityOptions) // 重置优先级
     }
   }, [visible])
+  useEffect(() => {
+    setTypeOptions(typeList)
+  }, [typeList])
 
   return (
     <Drawer
@@ -173,7 +176,7 @@ const TodoSetting = (props: TodoSettingProps) => {
             })}
           </Radio.Group>
         </Form.Item>
-        <Form.Item name="type" label="分类">
+        <Form.Item name="type_id" label="分类">
           <Radio.Group
             block
             size="small"
@@ -207,4 +210,4 @@ const TodoSetting = (props: TodoSettingProps) => {
   )
 }
 
-export default TodoSetting
+export default TodoEditing
