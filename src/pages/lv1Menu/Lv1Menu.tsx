@@ -5,7 +5,7 @@ import styles from "./style.module.less"
 import { Avatar, Button, Divider, Dropdown } from "antd";
 import {DeleteOutlined, LogoutOutlined, MoreOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
 import type { MenuProps } from 'antd';
-import Settings from "./modal/Settings";
+import Settings from "./modal/settings/Settings";
 
 const Lv1Menu = () => {
   const navigate = useNavigate();
@@ -48,6 +48,14 @@ const Lv1Menu = () => {
     },
   ];
 
+  // 获取分类列表
+  const getTypeList = async () => {
+    const res = await window.electronAPI?.dbQuery('type.getAllTypes');
+    if(Array.isArray(res)){
+      setTypeList(res)
+    }
+  }
+
   // 点击tab
   const handleTabClick = (path: string = '') => {
     setCurrentMenu(path)
@@ -69,6 +77,7 @@ const Lv1Menu = () => {
     setCurrentMenu('recycle')
     navigate('/menu/recycle', { replace: false });
   };
+
   // 打开设置
   const openSetting = (area: string) => {
     setDefSettingArea(area)
@@ -81,17 +90,7 @@ const Lv1Menu = () => {
       ?.filter(child => {
         return child.path && child.path !== '' && child.handle
       }) || [])
-    setTypeList(() => {
-      const newTypeList = [];
-      for (let i = 0; i < 5; i++) {
-        const type = {
-          type: `类别${i}`,
-          color: `#${Math.floor(Math.random() * 0xffffff).toString(16)}`
-        }
-        newTypeList.push(type);
-      }
-      return newTypeList;
-    })
+    getTypeList()
   }, [])
 
   return (
@@ -139,12 +138,12 @@ const Lv1Menu = () => {
           {typeList.map((item) => (
             <Button
               type="text"
-              className={currentMenu === item.type ? styles.activeMenu : ''}
-              key={item.type}
-              onClick={() => handleTypeClick(item.type)}
+              className={currentMenu === item.name ? styles.activeMenu : ''}
+              key={item.name}
+              onClick={() => handleTypeClick(item.name)}
             >
               <div className={styles.typeColor} style={{ backgroundColor: item.color }} />
-              {item.type}
+              {item.name}
             </Button>
           ))}
         </div>
@@ -162,7 +161,12 @@ const Lv1Menu = () => {
         </Button>
       </div>
       {/*设置-弹窗*/}
-      <Settings open={isOpenSetting} setOpen={setIsOpenSetting} defSettingArea={defSettingArea} />
+      <Settings
+        open={isOpenSetting}
+        setOpen={setIsOpenSetting}
+        defSettingArea={defSettingArea}
+        getTypeList={getTypeList}
+      />
     </div>
   );
 };

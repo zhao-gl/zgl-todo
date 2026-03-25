@@ -28,7 +28,7 @@ class SQLiteDatabase {
    * 初始化数据库
    */
   init() {
-    // 创建 users 表
+    // 创建 tb_users 表
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS tb_users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,7 +47,7 @@ class SQLiteDatabase {
         UPDATE tb_users SET updated_at = datetime('now', 'localtime') WHERE id = NEW.id;
       END;
     `);
-    // 创建 todos 表
+    // 创建 tb_todos 表
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS tb_todos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,7 +56,8 @@ class SQLiteDatabase {
         content TEXT NOT NULL,
         desc TEXT,
         done INTEGER DEFAULT 0,
-        type INTEGER,
+        type_id INTEGER,
+        type_color TEXT,
         tags TEXT,
         sort INTEGER DEFAULT 0,
         priority INTEGER,
@@ -78,6 +79,25 @@ class SQLiteDatabase {
         UPDATE tb_todos SET updated_at = datetime('now', 'localtime') WHERE id = NEW.id;
       END;
     `);
+    // 创建 tb_types 表
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS tb_types (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        todo_ids INTEGER,
+        name TEXT NOT NULL,
+        color TEXT NOT NULL,
+        created_at DATETIME DEFAULT (datetime('now', 'localtime')),
+        updated_at DATETIME DEFAULT (datetime('now', 'localtime'))
+      )
+    `);
+    // 创建触发器，更新时自动修改 updated_at
+    this.db.exec(`
+      CREATE TRIGGER IF NOT EXISTS update_types_timestamp
+      AFTER UPDATE ON tb_types
+      BEGIN
+        UPDATE tb_types SET updated_at = datetime('now', 'localtime') WHERE id = NEW.id;
+      END;
+    `);
   }
 
   /**
@@ -89,299 +109,355 @@ class SQLiteDatabase {
     }
   }
 
-  // ================== 待办操作 =================
-  /**
-   * 新增待办事项
-   * @param userId {number} 用户 ID
-   * @param tid {string} 待办id
-   * @param content {string} 待办内容
-   * @param belongDay
-   * @param type {number} 类别
-   * @returns {StatementResultingChanges}
-   */
-  dbAddTodo(userId, tid, content, belongDay, type) {
-    return this.db.prepare(`
-      INSERT INTO tb_todos (user_id, tid, content, belong_day, type)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(userId, tid, content, belongDay, type);
-  }
+  // 待办操作
+  todo = {
+    /**
+     * 新增待办事项
+     * @param userId {number} 用户 ID
+     * @param tid {string} 待办id
+     * @param content {string} 待办内容
+     * @param belongDay
+     * @param type_id {number} 类别
+     * @returns {StatementResultingChanges}
+     */
+    dbAddTodo: (userId, tid, content, belongDay, type_id) => {
+      return this.db.prepare(`
+        INSERT INTO tb_todos (user_id, tid, content, belong_day, type_id)
+        VALUES (?, ?, ?, ?, ?)
+      `).run(userId, tid, content, belongDay, type_id);
+    },
 
-  /**
-   * 更新待办事项（支持部分字段更新）
-   * @param {Object} params - 必须包含 id，其他字段可选
-   * @returns {StatementResultingChanges}
-   */
-  dbUpdateTodo(params) {
-    const {id, ...updateFields} = params;
-    // 1. 过滤掉 undefined / null（根据业务决定是否允许设为 null）
-    const validFields = Object.fromEntries(
-      Object.entries(updateFields).filter(([_, value]) => value !== undefined)
-    );
-    // 2. 如果没有要更新的字段，直接返回
-    if (Object.keys(validFields).length === 0) {
-      return {changes: 0};
-    }
-    // 3. 构建 SET 子句
-    const setClause = Object.keys(validFields)
-      .map(field => `${field} = ?`)
-      .join(', ');
-    // 4. 准备参数数组（顺序与 SET 子句一致）
-    const values = [...Object.values(validFields), id];
-    // 5. 执行动态 SQL
-    const sql = `
-      UPDATE tb_todos
-      SET ${setClause},
-          updated_at = datetime('now', 'localtime')
-      WHERE id = ?
-    `;
-    return this.db.prepare(sql).run(...values);
-  }
+    /**
+     * 更新待办事项（支持部分字段更新）
+     * @param {Object} params - 必须包含 id，其他字段可选
+     * @returns {StatementResultingChanges}
+     */
+    dbUpdateTodo: (params) => {
+      const {id, ...updateFields} = params;
+      // 1. 过滤掉 undefined / null（根据业务决定是否允许设为 null）
+      const validFields = Object.fromEntries(
+        Object.entries(updateFields).filter(([_, value]) => value !== undefined)
+      );
+      // 2. 如果没有要更新的字段，直接返回
+      if (Object.keys(validFields).length === 0) {
+        return {changes: 0};
+      }
+      // 3. 构建 SET 子句
+      const setClause = Object.keys(validFields)
+        .map(field => `${field} = ?`)
+        .join(', ');
+      // 4. 准备参数数组（顺序与 SET 子句一致）
+      const values = [...Object.values(validFields), id];
+      // 5. 执行动态 SQL
+      const sql = `
+        UPDATE tb_todos
+        SET ${setClause},
+            updated_at = datetime('now', 'localtime')
+        WHERE id = ?
+      `;
+      return this.db.prepare(sql).run(...values);
+    },
 
-  /**
-   * 根据日期获取待办
-   * @param {number} userId - 用户 ID
-   * @param {string} belongDay - 日期（格式：YYYY-MM-DD）
-   * @param {number} sortType - 排序类型：1=创建时间倒序，2=优先级排序，3=自定义排序
-   * @returns {Record<string, SQLOutputValue>[]}
-   */
-  dbTodosByDate({userId, belongDay, sortType}) {
-    // 定义合法的排序选项（防止 SQL 注入）
-    const sortOptions = {
-      1: 'created_at DESC',
-      2: 'priority ASC, created_at DESC', // 假设 priority 字段存在，值越小优先级越高
-      3: 'sort ASC, created_at DESC'       // 自定义排序字段 `sort`
-    };
-    // 验证 sortType 是否合法
-    if (!sortOptions.hasOwnProperty(sortType)) {
-      throw new Error(`Invalid sortType: ${sortType}. Expected 1, 2, or 3.`);
-    }
-    const orderByClause = sortOptions[sortType];
-    const sql = `
+    /**
+     * 根据日期获取待办
+     * @param {number} userId - 用户 ID
+     * @param {string} belongDay - 日期（格式：YYYY-MM-DD）
+     * @param {number} sortType - 排序类型：1=创建时间倒序，2=优先级排序，3=自定义排序
+     * @returns {Record<string, SQLOutputValue>[]}
+     */
+    dbTodosByDate: ({userId, belongDay, sortType}) => {
+      // 定义合法的排序选项（防止 SQL 注入）
+      const sortOptions = {
+        1: 'created_at DESC',
+        2: 'priority ASC, created_at DESC', // 假设 priority 字段存在，值越小优先级越高
+        3: 'sort ASC, created_at DESC'       // 自定义排序字段 `sort`
+      };
+      // 验证 sortType 是否合法
+      if (!sortOptions.hasOwnProperty(sortType)) {
+        throw new Error(`Invalid sortType: ${sortType}. Expected 1, 2, or 3.`);
+      }
+      const orderByClause = sortOptions[sortType];
+      const sql = `
       SELECT * FROM tb_todos
-      WHERE user_id = ?
-        AND belong_day = ?
-        AND is_deleted = 0
-      ORDER BY ${orderByClause}
-    `;
-    return this.db.prepare(sql).all(userId, belongDay);
-  }
+        WHERE user_id = ?
+          AND belong_day = ?
+          AND is_deleted = 0
+        ORDER BY ${orderByClause}
+      `;
+      return this.db.prepare(sql).all(userId, belongDay);
+    },
 
-  /**
-   * 根据优先级排序
-   * @param userId {number} 用户 ID
-   * @param priority {number} 优先级 (0-4)
-   * @returns {Record<string, SQLOutputValue>[]}
-   */
-  dbTodosByPriority(userId, priority) {
-    return this.db.prepare(`
+    /**
+     * 根据优先级排序
+     * @param userId {number} 用户 ID
+     * @param priority {number} 优先级 (0-4)
+     * @returns {Record<string, SQLOutputValue>[]}
+     */
+    dbTodosByPriority: (userId, priority) => {
+      return this.db.prepare(`
       SELECT *
       FROM tb_todos
       WHERE user_id = ?
         AND priority = ?
         AND is_deleted = 0
       ORDER BY priority DESC`
-    ).all(userId, priority);
-  }
+      ).all(userId, priority);
+    },
 
-  /**
-   * 根据 sort 排序
-   * @param userId {number} 用户 ID
-   * @returns {Record<string, SQLOutputValue>[]}
-   */
-  dbTodosBySort({userId}) {
-    return this.db.prepare(`
+    /**
+     * 根据 sort 排序
+     * @param userId {number} 用户 ID
+     * @returns {Record<string, SQLOutputValue>[]}
+     */
+    dbTodosBySort: ({userId}) => {
+      return this.db.prepare(`
       SELECT *
       FROM tb_todos
       WHERE user_id = ?
         AND is_deleted = 0
       ORDER BY sort ASC, created_at ASC`
-    ).all(userId);
-  }
+      ).all(userId);
+    },
 
-  /**
-   * 仅更新待办事项的排序字段（sort）
-   * @param {Array} todos - 待办事项列表
-   * @returns {StatementResultingChanges}
-   */
-  batchUpdateSort(todos){
-    let stmt = this.db.prepare(`
-      UPDATE tb_todos
-      SET sort = ?,
-          updated_at = datetime('now', 'localtime')
-      WHERE id = ?
-    `);
+    /**
+     * 仅更新待办事项的排序字段（sort）
+     * @param {Array} todos - 待办事项列表
+     * @returns {StatementResultingChanges}
+     */
+    batchUpdateSort: (todos) => {
+      let stmt = this.db.prepare(`
+        UPDATE tb_todos
+        SET sort = ?,
+            updated_at = datetime('now', 'localtime')
+        WHERE id = ?
+      `);
 
-    const transaction = this.db.transaction((items) => {
-      for (const { id, sort } of items) {
-        stmt.run(sort, id);
+      const transaction = this.db.transaction((items) => {
+        for (const { id, sort } of items) {
+          stmt.run(sort, id);
+        }
+      });
+
+      transaction(todos);
+    },
+
+    /**
+     * 根据是否完成筛选待办事项
+     * @param userId {number} 用户 ID
+     * @param done {number} 是否完成
+     * @returns {Record<string, SQLOutputValue>[]}
+     */
+    dbTodosByDone: (userId, done) => {
+      if (done !== 0 && done !== 1) {
+        throw new Error('done must be 0 or 1');
       }
-    });
+      const stmt = this.db.prepare(`
+        SELECT * FROM tb_todos
+        WHERE user_id = ?
+          AND done = ?
+          AND is_deleted = 0
+        ORDER BY created_at DESC
+      `);
+      // @ts-ignore
+      return stmt.all([userId, done]);
+    },
 
-    transaction(todos);
-  };
+    /**
+     * 软删除待办事项
+     * @param tid {number} 待办 ID
+     * @returns {StatementResultingChanges}
+     */
+    dbDeleteTodo: (tid) => {
+      return this.db.prepare(`
+        UPDATE tb_todos
+        SET is_deleted = 1,
+            deleted_at = datetime('now', 'localtime'),
+            destroy_at = datetime('now', 'localtime', '+30 days')
+        WHERE tid = ?
+      `).run(tid);
+    },
 
-  /**
-   * 根据是否完成筛选待办事项
-   * @param userId {number} 用户 ID
-   * @param done {number} 是否完成
-   * @returns {Record<string, SQLOutputValue>[]}
-   */
-  dbTodosByDone(userId, done) {
-    if (done !== 0 && done !== 1) {
-      throw new Error('done must be 0 or 1');
+    /**
+     * 从回收站恢复待办事项
+     * @param id {number} 待办 ID
+     * @returns {StatementResultingChanges}
+     */
+    dbRestoreTodo: (id) => {
+      return this.db.prepare(`
+        UPDATE tb_todos
+        SET is_deleted = 0
+        WHERE id = ?
+      `).run(id);
+    },
+
+    /**
+     * 获取回收站中的待办事项
+     * @param userId {number} 用户 ID
+     * @returns {Record<string, SQLOutputValue>[]}
+     */
+    dbGetDeletedTodos: (userId) => {
+      return this.db.prepare('SELECT * FROM tb_todos WHERE user_id = ? AND is_deleted = 1 ORDER BY created_at DESC').all(userId);
+    },
+
+    /**
+     * 获取收集箱中的待办事项
+     * @param userId {number} 用户 ID
+     * @returns {Record<string, SQLOutputValue>[]}
+     */
+    dbGetCollectTodos: (userId) => {
+      return this.db.prepare('SELECT * FROM tb_todos WHERE user_id = ? AND is_collect = 1 AND is_deleted = 0 ORDER BY created_at DESC').all(userId);
+    },
+
+    /**
+     * 切换收集箱状态
+     * @param id {number} 待办 ID
+     * @param isCollect {boolean} 是否收集
+     * @returns {StatementResultingChanges}
+     */
+    dbToggleCollect: (id, isCollect) => {
+      return this.db.prepare(`
+        UPDATE tb_todos
+        SET is_collect = ?
+        WHERE id = ?
+      `).run(isCollect ? 1 : 0, id);
     }
-    const stmt = this.db.prepare(`
-      SELECT * FROM tb_todos
-      WHERE user_id = ?
-        AND done = ?
-        AND is_deleted = 0
-      ORDER BY created_at DESC
-    `);
-    // @ts-ignore
-    return stmt.all([userId, done]);
   }
 
-  /**
-   * 软删除待办事项
-   * @param tid {number} 待办 ID
-   * @returns {StatementResultingChanges}
-   */
-  dbDeleteTodo(tid) {
-    return this.db.prepare(`
-      UPDATE tb_todos
-      SET is_deleted = 1,
-          deleted_at = datetime('now', 'localtime'),
-          destroy_at = datetime('now', 'localtime', '+30 days')
-      WHERE tid = ?
-    `).run(tid);
-  }
+  // 用户操作
+  user = {
+    /**
+     * 根据id获取用户信息
+     * @param id {number}
+     * @returns {Record<string, SQLOutputValue>}
+     */
+    dbGetUserById: (id) => {
+      return this.db.prepare('SELECT * FROM tb_users WHERE id = ?').get(id);
+    },
 
-  /**
-   * 从回收站恢复待办事项
-   * @param id {number} 待办 ID
-   * @returns {StatementResultingChanges}
-   */
-  dbRestoreTodo(id) {
-    return this.db.prepare(`
-      UPDATE tb_todos
-      SET is_deleted = 0
-      WHERE id = ?
-    `).run(id);
-  }
+    /**
+     * 根据username获取用户
+     * @param username {string}
+     * @returns {Record<string, SQLOutputValue>}
+     */
+    dbGetUserByUsername: (username) => {
+      return this.db.prepare('SELECT * FROM tb_users WHERE username = ?').get(username);
+    },
 
-  /**
-   * 获取回收站中的待办事项
-   * @param userId {number} 用户 ID
-   * @returns {Record<string, SQLOutputValue>[]}
-   */
-  dbGetDeletedTodos(userId) {
-    return this.db.prepare('SELECT * FROM tb_todos WHERE user_id = ? AND is_deleted = 1 ORDER BY created_at DESC').all(userId);
-  }
-
-  /**
-   * 获取收集箱中的待办事项
-   * @param userId {number} 用户 ID
-   * @returns {Record<string, SQLOutputValue>[]}
-   */
-  dbGetCollectTodos(userId) {
-    return this.db.prepare('SELECT * FROM tb_todos WHERE user_id = ? AND is_collect = 1 AND is_deleted = 0 ORDER BY created_at DESC').all(userId);
-  }
-
-  /**
-   * 切换收集箱状态
-   * @param id {number} 待办 ID
-   * @param isCollect {boolean} 是否收集
-   * @returns {StatementResultingChanges}
-   */
-  dbToggleCollect(id, isCollect) {
-    return this.db.prepare(`
-      UPDATE tb_todos
-      SET is_collect = ?
-      WHERE id = ?
-    `).run(isCollect ? 1 : 0, id);
-  }
-
-  // ================== 用户操作 =================
-  /**
-   * 根据id获取用户信息
-   * @param id {number}
-   * @returns {Record<string, SQLOutputValue>}
-   */
-  dbGetUserById(id) {
-    return this.db.prepare('SELECT * FROM tb_users WHERE id = ?').get(id);
-  }
-
-  /**
-   * 根据username获取用户
-   * @param username {string}
-   * @returns {Record<string, SQLOutputValue>}
-   */
-  dbGetUserByUsername(username) {
-    return this.db.prepare('SELECT * FROM tb_users WHERE username = ?').get(username);
-  }
-
-  /**
-   * 注册用户
-   * @param username {string} 用户名
-   * @param password {string} 密码
-   * @returns {StatementResultingChanges}
-   */
-  dbAddUser(username, password) {
-    return this.db.prepare(`
+    /**
+     * 注册用户
+     * @param username {string} 用户名
+     * @param password {string} 密码
+     * @returns {StatementResultingChanges}
+     */
+    dbAddUser: (username, password) => {
+      return this.db.prepare(`
       INSERT INTO tb_users (username, password_hash)
       VALUES (?, ?)`
-    ).run(username, password);
-  }
+      ).run(username, password);
+    },
 
-  /**
-   * 更新用户信息
-   * @param id {number} 用户id
-   * @param username {string} 用户名
-   * @param password {string} 新密码
-   * @returns {StatementResultingChanges}
-   */
-  dbUpdateUser(id, username, password) {
-    if (password) {
+    /**
+     * 更新用户信息
+     * @param id {number} 用户id
+     * @param username {string} 用户名
+     * @param password {string} 新密码
+     * @returns {StatementResultingChanges}
+     */
+    dbUpdateUser: (id, username, password) => {
+      if (password) {
+        return this.db.prepare(`
+          UPDATE tb_users
+          SET username      = ?,
+              password_hash = ?
+          WHERE id = ?`
+        ).run(username, password, id);
+      }
       return this.db.prepare(`
         UPDATE tb_users
-        SET username      = ?,
-            password_hash = ?
+        SET username = ?
         WHERE id = ?`
-      ).run(username, password, id);
-    }
-    return this.db.prepare(`
-      UPDATE tb_users
-      SET username = ?
-      WHERE id = ?`
-    ).run(username, id);
-  }
+      ).run(username, id);
+    },
 
-  /**
-   * 删除用户
-   * @param id {number} 用户id
-   * @returns {StatementResultingChanges}
-   */
-  dbDeleteUser(id) {
-    return this.db.prepare(`
-      DELETE
-      FROM tb_users
-      WHERE id = ?`
-    ).run(id);
-  }
+    /**
+     * 删除用户
+     * @param id {number} 用户id
+     * @returns {StatementResultingChanges}
+     */
+    dbDeleteUser: (id) => {
+      return this.db.prepare(`
+        DELETE
+        FROM tb_users
+        WHERE id = ?`
+      ).run(id);
+    },
 
-  /**
-   * 登录
-   * @param username {string} 用户名
-   * @param password {string} 密码
-   * @returns {Record<string, SQLOutputValue> | null}
-   */
-  dbLogin(username, password) {
-    return this.db.prepare(`
+    /**
+     * 登录
+     * @param username {string} 用户名
+     * @param password {string} 密码
+     * @returns {Record<string, SQLOutputValue> | null}
+     */
+    dbLogin: (username, password) => {
+      return this.db.prepare(`
       SELECT *
       FROM tb_users
       WHERE username = ?`
-    ).get(username);
+      ).get(username);
+    }
+  }
+
+  // 类型操作
+  type = {
+    /**
+     * 新增类型
+     * @param name
+     * @param color
+     */
+    dbAddType: ({name, color}) => {
+      return this.db.prepare(`
+        INSERT INTO tb_types (name, color)
+        VALUES (?, ?)
+      `).run(name, color);
+    },
+
+    /**
+     * 删除类型
+     * @param id
+     * @returns {*}
+     */
+    dbDeleteType: (id) => {
+      return this.db.prepare(`
+        DELETE
+        FROM tb_types
+        WHERE id = ?`
+      ).run(id);
+    },
+
+    /**
+     * 更新类型
+     * @param id
+     * @param name
+     * @param color
+     * @returns {*}
+     */
+    dbUpdateType: ({id, name, color}) => {
+      return this.db.prepare(`
+        UPDATE tb_types
+        SET name = ?,
+            color = ?
+        WHERE id = ?`
+      ).run(name, color, id);
+    },
+
+    /**
+     * 查询所有类型
+     * @returns {*}
+     */
+    dbGetAllTypes: () => {
+      return this.db.prepare('SELECT * FROM tb_types').all();
+    }
   }
 }
 
-module.exports = SQLiteDatabase;
+module.exports = SQLiteDatabase
