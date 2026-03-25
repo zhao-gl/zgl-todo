@@ -3,6 +3,7 @@ import styles from "./style.module.less"
 import React, {useCallback, useEffect, useState} from "react";
 import dayjs from "dayjs";
 import {TodoItem} from "@/types/todoList";
+import {TypeItem} from "@/types/typeList";
 import TodoCenter from "@/pages/todoList/TodoCenter";
 import TodoSetting from "@/pages/todoList/TodoSetting";
 import {PlusOutlined} from "@ant-design/icons";
@@ -16,6 +17,7 @@ const TodoList = () => {
   const [pickType, setPickType] = useState<number>(0)
   const [date, setDate] = useState('');
   const [sortType, setSortType] = useState<number>(1) // 1 创建时间倒序 2 优先级排序 3 自定义排序
+  const [typeList, setTypeList] = useState<TypeItem[]>([])
   const [todoItem, setTodoItem] = useState<TodoItem>({
     id: 0,
     userId: 0,
@@ -24,12 +26,21 @@ const TodoList = () => {
     desc: "-",
     done: 0,
     priority: 0,
-    type: 0
+    type_id: 0
   })
+
+  // 获取分类
+  const getTypeList = async () => {
+    const res = await window.electronAPI?.dbQuery('type.getAllTypes');
+    if(Array.isArray(res)){
+      setTypeList(res)
+    }
+    return res
+  };
 
   // 获取待办列表
   const getTodoList = async () => {
-    const arr = await window.electronAPI?.dbQuery('todo.getTodosByDate',{
+    const arr: TodoItem[] = await window.electronAPI?.dbQuery('todo.getTodosByDate',{
       userId: userInfo.id,
       belongDay: date,
       sortType
@@ -47,7 +58,7 @@ const TodoList = () => {
         userId: userInfo.id,
         content: value.trim(),
         belongDay: date,
-        type: pickType,
+        // type_id: pickType,
       }
       const res = await window.electronAPI?.dbQuery('todo.addTodo', newTodo)
       if(res.changes){
@@ -115,6 +126,7 @@ const TodoList = () => {
         visible={visibleTodoEdit}
         setVisible={setVisibleTodoEdit}
         todoItem={todoItem}
+        typeList={typeList}
         getTodoList={getTodoList}
       />
     </div>

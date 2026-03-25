@@ -30,9 +30,10 @@ interface SortableItemProps {
   onEdit: (item: TodoItem) => void;
   onChangeStatus: (checked: boolean, item: TodoItem) => void;
   onDelete: (tid: string) => void;
+  typeColor: string | undefined;
 }
 
-const SortableItem = ({ id, item, onEdit, onChangeStatus, onDelete }: SortableItemProps) => {
+const SortableItem = ({ id, item, onEdit, onChangeStatus, onDelete, typeColor }: SortableItemProps) => {
   const {
     attributes,
     listeners,
@@ -48,6 +49,7 @@ const SortableItem = ({ id, item, onEdit, onChangeStatus, onDelete }: SortableIt
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    borderLeft: `1px solid ${typeColor}`,
     // 移除内联样式，改用 className 控制外观
   };
 
@@ -198,6 +200,7 @@ const TodoCenter = (props: TodoCenterProps) => {
                 onEdit={openTodoEdit}
                 onChangeStatus={changeTodoStatus}
                 onDelete={deleteTodo}
+                typeColor={item.type_color}
               />
             ))}
           </SortableContext>

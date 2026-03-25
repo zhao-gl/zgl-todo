@@ -4,7 +4,8 @@ type TodoItem = {
   userId?: number
   content: string
   done?: number
-  type?: number
+  type_id?: number
+  type_color?: string
   desc?: string
   priority?: number
   belong_day?: string

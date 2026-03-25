@@ -3,42 +3,42 @@ const { generateId } = require("../../utils");
 
 class TodoController {
   constructor() {
-    this.todoDao = SQLiteDatabase.getInstance();
+    this.db = SQLiteDatabase.getInstance();
   }
 
   // 添加待办事项
-  addTodo({userId, content, belongDay, type}) {
+  addTodo({userId, content, belongDay, type_id}) {
     const tid = generateId();
-    return this.todoDao.dbAddTodo(userId, tid, content, belongDay, type);
+    return this.db.todo.dbAddTodo(userId, tid, content, belongDay, type_id);
   }
 
   // 删除待办事项
   deleteTodo(tid) {
-    return this.todoDao.dbDeleteTodo(tid);
+    return this.db.todo.dbDeleteTodo(tid);
   }
 
   // 更新待办事项
   updateTodo(params) {
-    return this.todoDao.dbUpdateTodo(params);
+    return this.db.todo.dbUpdateTodo(params);
   }
 
   // 根据日期获取待办
   getTodosByDate(params) {
-    return this.todoDao.dbTodosByDate(params);
+    return this.db.todo.dbTodosByDate(params);
   }
 
   // 根据 sort 排序
   getTodosBySort(params) {
-    return this.todoDao.dbTodosBySort(params);
+    return this.db.todo.dbTodosBySort(params);
   }
   // 更新 sort 排序
   batchUpdateTodosSort(params) {
-    return this.todoDao.batchUpdateSort(params);
+    return this.db.todo.batchUpdateSort(params);
   }
 
   // 获取所有待办事项
   getTodosByDone({userId, done}) {
-    return this.todoDao.dbTodosByDone(userId, done)
+    return this.db.todo.dbTodosByDone(userId, done)
   }
 }
 

@@ -4,12 +4,14 @@ import {TodoItem} from "@/types/todoList";
 import {PRIORITY_MAP} from "@/global/Global"
 import dayjs from "dayjs";
 import styles from './style.module.less'
+import {TypeItem} from "@/types/typeList";
 
 type TodoSettingProps = {
   visible: boolean,
   setVisible?: (visible: boolean) => void
   todoItem: TodoItem
   getTodoList: () => void
+  typeList: TypeItem[]
   // todoList: TodoItem[]
   // setTodoList: (todoList: TodoItem[]) => void
 }
@@ -27,24 +29,12 @@ const defBelongDayOptions = [
 ]
 
 const TodoSetting = (props: TodoSettingProps) => {
-  const { visible, setVisible, todoItem, getTodoList } = props
+  const { visible, setVisible, todoItem, typeList, getTodoList } = props
   const [form] = Form.useForm()
-  const [typeOptions, setTypeOptions] = useState<any[]>([]);
+  const [typeOptions, setTypeOptions] = useState<any[]>(typeList);
   const [priorityOptions, setPriorityOptions] = useState(defaultPriorityOptions);
   const [belongDayOptions, setBelongDayOptions] = useState(defBelongDayOptions);
   const [customBelongDay, setCustomBelongDay] = useState<any>('')
-
-  // 获取分类
-  const getTypeOptions = async () => {
-    // return getCategoryList().map(item => {
-    //   return {
-    //     label: item.name,
-    //     value: item.id,
-    //     style: {color: '#1f1f1f'}
-    //   }
-    // })
-    setTypeOptions(defaultPriorityOptions)
-  };
 
   // 回显表单值
   const echoFormValues = () => {
@@ -71,6 +61,7 @@ const TodoSetting = (props: TodoSettingProps) => {
           break;
       }
     }
+    newTodoItem.type_color = typeOptions.find(item => item.id === newTodoItem.type)?.color
     const res = await window.electronAPI?.dbQuery?.('todo.updateTodo', newTodoItem)
     try {
       if (res.changes > 0) {
@@ -85,7 +76,7 @@ const TodoSetting = (props: TodoSettingProps) => {
   const changeType = (e: any) => {
     const value = e.target.value
     setTypeOptions(typeOptions.map(item => {
-      return item.value === value
+      return item.id === value
         ? {...item, style: {color: '#1f1f1f', backgroundColor: item.activeColor}}
         : {...item, style: {color: '#1f1f1f'}}
     }))
@@ -108,7 +99,7 @@ const TodoSetting = (props: TodoSettingProps) => {
 
   useEffect(() => {
     if (visible) {
-      getTypeOptions()
+      // getTypeOptions()
       if (todoItem) echoFormValues()
     }else{
       setPriorityOptions(defaultPriorityOptions) // 重置优先级
@@ -190,13 +181,13 @@ const TodoSetting = (props: TodoSettingProps) => {
             optionType="button"
             buttonStyle="outline"
           >
-            {typeOptions.map((option) => (
+            {typeOptions.map((item) => (
               <Radio.Button
-                key={option.value}
-                value={option.value}
-                style={{ borderRadius: '30px', margin: '0 4px' }}
+                key={item.id}
+                value={item.id}
+                style={{ borderRadius: '30px', margin: '0 4px', backgroundColor: item.color }}
               >
-                {option.label}
+                {item.name}
               </Radio.Button>
             ))}
           </Radio.Group>
