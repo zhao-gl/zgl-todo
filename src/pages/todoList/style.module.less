@@ -126,3 +126,47 @@
     text-align: center;
   }
 }
+
+.todoEditing {
+  :global {
+    .ant-form-item {
+      margin-bottom: 12px;
+    }
+  }
+}
+
+.customRadioGroup {
+  max-height: 100px;
+  overflow-y: auto;
+  &::-webkit-scrollbar {
+    width: 6px; // 设置滚动条宽度
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+    &:hover {
+      background: #a8a8a8;
+    }
+  }
+  .radioButtonTextWrapper {
+    width: 65px;
+    display: flex;
+    align-items: center;
+    .radioButtonIcon {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .radioButtonText {
+      width: 50px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}

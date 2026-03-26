@@ -129,6 +129,7 @@ const TodoList = () => {
         todoItem={todoItem}
         typeList={typeList}
         getTodoList={getTodoList}
+        getTypeList={getTypeList}
       />
     </div>
   )

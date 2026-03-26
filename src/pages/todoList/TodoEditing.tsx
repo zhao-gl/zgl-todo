@@ -7,11 +7,12 @@ import styles from './style.module.less'
 import {TypeItem} from "@/types/typeList";
 
 type TodoEditingProps = {
-  visible: boolean,
-  setVisible?: (visible: boolean) => void
-  todoItem: TodoItem
-  getTodoList: () => void
-  typeList: TypeItem[]
+  visible: boolean;
+  setVisible?: (visible: boolean) => void;
+  todoItem: TodoItem;
+  getTodoList: () => void;
+  typeList: TypeItem[];
+  getTypeList: () => void;
   // todoList: TodoItem[]
   // setTodoList: (todoList: TodoItem[]) => void
 }
@@ -29,9 +30,8 @@ const defBelongDayOptions = [
 ]
 
 const TodoEditing = (props: TodoEditingProps) => {
-  const { visible, setVisible, todoItem, typeList, getTodoList } = props
+  const { visible, setVisible, todoItem, typeList, getTodoList, getTypeList } = props
   const [form] = Form.useForm()
-  const [typeOptions, setTypeOptions] = useState<any[]>(typeList);
   const [priorityOptions, setPriorityOptions] = useState(defaultPriorityOptions);
   const [belongDayOptions, setBelongDayOptions] = useState(defBelongDayOptions);
   const [customBelongDay, setCustomBelongDay] = useState<any>('')
@@ -61,7 +61,7 @@ const TodoEditing = (props: TodoEditingProps) => {
           break;
       }
     }
-    newTodoItem.type_color = typeOptions.find(item => item.id === newTodoItem.type_id)?.color
+    newTodoItem.type_color = typeList.find(item => item.id === newTodoItem.type_id)?.color
     const res = await window.electronAPI?.dbQuery?.('todo.updateTodo', newTodoItem)
     try {
       if (res.changes > 0) {
@@ -75,21 +75,21 @@ const TodoEditing = (props: TodoEditingProps) => {
   // 改变分类
   const changeType = (e: any) => {
     const value = e.target.value
-    setTypeOptions(typeOptions.map(item => {
-      return item.id === value
-        ? {...item, style: {color: '#1f1f1f', backgroundColor: item.activeColor}}
-        : {...item, style: {color: '#1f1f1f'}}
-    }))
+    // setTypeOptions(typeOptions.map(item => {
+    //   return item.id === value
+    //     ? {...item, style: {color: '#1f1f1f', backgroundColor: item.activeColor}}
+    //     : {...item, style: {color: '#1f1f1f'}}
+    // }))
   };
 
   // 改变优先级
   const changePriority = (e: any) => {
-    const value = e.target.value
-    setPriorityOptions(priorityOptions.map(item => {
-      return item.value === value
-        ? {...item, style: {color: '#1f1f1f', backgroundColor: item.activeColor}}
-        : {...item, style: {color: '#1f1f1f'}}
-    }))
+    // const value = e.target.value
+    // setPriorityOptions(priorityOptions.map(item => {
+    //   return item.value === value
+    //     ? {...item, style: {color: '#1f1f1f', backgroundColor: item.activeColor}}
+    //     : {...item, style: {color: '#1f1f1f'}}
+    // }))
   };
 
   // 改变所属日期
@@ -101,13 +101,11 @@ const TodoEditing = (props: TodoEditingProps) => {
     if (visible) {
       // getTypeOptions()
       if (todoItem) echoFormValues()
+      getTypeList()
     }else{
       setPriorityOptions(defaultPriorityOptions) // 重置优先级
     }
   }, [visible])
-  useEffect(() => {
-    setTypeOptions(typeList)
-  }, [typeList])
 
   return (
     <Drawer
@@ -127,7 +125,13 @@ const TodoEditing = (props: TodoEditingProps) => {
         if (setVisible) setVisible(false);
       }}
     >
-      <Form form={form} labelCol={{span: 4}} labelAlign="left" onValuesChange={updateTodoItem}>
+      <Form
+        form={form}
+        labelCol={{span: 4}}
+        labelAlign="left"
+        onValuesChange={updateTodoItem}
+        className={styles.todoEditing}
+      >
         <Form.Item name="content">
           <Input placeholder="请输入待办内容" variant="underlined" />
         </Form.Item>
@@ -180,19 +184,25 @@ const TodoEditing = (props: TodoEditingProps) => {
           <Radio.Group
             block
             size="small"
-            onChange={changeType}
+            // onChange={changeType}
             optionType="button"
             buttonStyle="outline"
           >
-            {typeOptions.map((item) => (
-              <Radio.Button
-                key={item.id}
-                value={item.id}
-                style={{ borderRadius: '30px', margin: '0 4px', backgroundColor: item.color }}
-              >
-                {item.name}
-              </Radio.Button>
-            ))}
+            <div className={styles.customRadioGroup}>
+              {typeList.map((item) => (
+                <Radio.Button
+                  key={item.id}
+                  value={item.id}
+                  className={styles.customRadioButton}
+                  style={{ borderRadius: '30px', margin: '4px' }}
+                >
+                  <div className={styles.radioButtonTextWrapper}>
+                    <div style={{backgroundColor: item.color}} className={styles.radioButtonIcon}></div>
+                    <div className={styles.radioButtonText}>{item.name}</div>
+                  </div>
+                </Radio.Button>
+              ))}
+            </div>
           </Radio.Group>
         </Form.Item>
         <Form.Item name="priority" label="优先级">
@@ -200,10 +210,19 @@ const TodoEditing = (props: TodoEditingProps) => {
             block
             size="small"
             options={priorityOptions}
-            onChange={changePriority}
+            // onChange={changePriority}
             optionType="button"
             buttonStyle="outline"
-          />
+          >
+            {priorityOptions.map((item) => (
+              <Radio.Button
+                key={item.value}
+                value={item.value}
+              >
+                <div>{item.label}</div>
+              </Radio.Button>
+            ))}
+          </Radio.Group>
         </Form.Item>
       </Form>
     </Drawer>
