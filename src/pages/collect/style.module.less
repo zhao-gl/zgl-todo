@@ -1,0 +1,37 @@
+.collectList {
+  height: calc(100% - 48px);
+  overflow-y: auto;
+  .collectItem {
+    height: 48px;
+    margin-bottom: 8px;
+    background-color: #fff;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    position: relative;
+    &:hover {
+      background-color: #fafafa;
+    }
+  }
+  .collectItemText {
+    font-size: 16px;
+    font-weight: 500;
+    color: #262626;
+    margin: 0 0 4px 0;
+    word-break: break-word;
+  }
+  .collectItemBtn {
+    font-size: 16px;
+    position: absolute;
+    right: 24px;
+    top: 12px;
+    cursor: pointer;
+    opacity: 0.3;
+    &:hover {
+      color: #2d98ff;
+      opacity: 0.9;
+    }
+  }
+}
+

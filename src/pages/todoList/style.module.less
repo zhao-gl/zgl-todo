@@ -1,18 +1,5 @@
 .todoContainer {
   height: 100%;
-  .toolBar {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 32px;
-    padding: 0 2px;
-    margin-bottom: 16px;
-    .toolBarOther {
-      display: flex;
-      align-items: center;
-    }
-  }
   .todoInput {
     width: 100%;
     margin-bottom: 16px;
@@ -128,10 +115,20 @@
 }
 
 .todoEditing {
+  position: relative;
   :global {
     .ant-form-item {
       margin-bottom: 12px;
     }
+  }
+  .todoEditFooter {
+    width: calc(100% - 48px);
+    position: absolute;
+    bottom: 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    font-size: 18px;
   }
 }
 

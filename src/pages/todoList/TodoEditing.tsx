@@ -1,10 +1,11 @@
-import {DatePicker, Drawer, Form, Input, Radio} from "antd";
+import {Button, DatePicker, Drawer, Form, Input, message, Radio, Tooltip} from "antd";
 import {useEffect, useState} from "react";
 import {TodoItem} from "@/types/todoList";
 import {PRIORITY_MAP} from "@/global/Global"
 import dayjs from "dayjs";
 import styles from './style.module.less'
 import {TypeItem} from "@/types/typeList";
+import {BellOutlined, DeleteOutlined, InboxOutlined} from "@ant-design/icons";
 
 type TodoEditingProps = {
   visible: boolean;
@@ -13,6 +14,7 @@ type TodoEditingProps = {
   getTodoList: () => void;
   typeList: TypeItem[];
   getTypeList: () => void;
+  deleteTodo: (tid: string) => void;
   // todoList: TodoItem[]
   // setTodoList: (todoList: TodoItem[]) => void
 }
@@ -30,7 +32,7 @@ const defBelongDayOptions = [
 ]
 
 const TodoEditing = (props: TodoEditingProps) => {
-  const { visible, setVisible, todoItem, typeList, getTodoList, getTypeList } = props
+  const { visible, setVisible, todoItem, typeList, getTodoList, getTypeList, deleteTodo } = props
   const [form] = Form.useForm()
   const [priorityOptions, setPriorityOptions] = useState(defaultPriorityOptions);
   const [belongDayOptions, setBelongDayOptions] = useState(defBelongDayOptions);
@@ -45,7 +47,7 @@ const TodoEditing = (props: TodoEditingProps) => {
   // 更新待办
   const updateTodoItem = async (_: any, allValues: any) => {
     const newTodoItem = {...todoItem, ...allValues}
-    console.log("newTodoItem:", newTodoItem)
+    // console.log("newTodoItem:", newTodoItem)
     // 处理所属日期
     if(newTodoItem.belong_day){
       const value = newTodoItem.belong_day
@@ -72,30 +74,18 @@ const TodoEditing = (props: TodoEditingProps) => {
     }
   };
 
-  // 改变分类
-  const changeType = (e: any) => {
-    const value = e.target.value
-    // setTypeOptions(typeOptions.map(item => {
-    //   return item.id === value
-    //     ? {...item, style: {color: '#1f1f1f', backgroundColor: item.activeColor}}
-    //     : {...item, style: {color: '#1f1f1f'}}
-    // }))
+  // 添加到收集箱
+  const dropToCollectBox = async () => {
+    const res = await window.electronAPI?.dbQuery?.('todo.dropToCollectBox', {id: todoItem.id})
+    try {
+      if (res.changes > 0) {
+        message.success('已添加到收集箱')
+        getTodoList()
+      }
+    } catch (error) {
+      console.log(error)
+    }
   };
-
-  // 改变优先级
-  const changePriority = (e: any) => {
-    // const value = e.target.value
-    // setPriorityOptions(priorityOptions.map(item => {
-    //   return item.value === value
-    //     ? {...item, style: {color: '#1f1f1f', backgroundColor: item.activeColor}}
-    //     : {...item, style: {color: '#1f1f1f'}}
-    // }))
-  };
-
-  // 改变所属日期
-  // const changeBelongDay = (e: any) => {
-  //   const value = e.target.value
-  // };
 
   useEffect(() => {
     if (visible) {
@@ -118,6 +108,7 @@ const TodoEditing = (props: TodoEditingProps) => {
           backdropFilter: 'none'
         }
       }}
+      className={styles.todoEditing}
       maskClosable={true}
       closable={false}
       onClose={() => {
@@ -130,7 +121,6 @@ const TodoEditing = (props: TodoEditingProps) => {
         labelCol={{span: 4}}
         labelAlign="left"
         onValuesChange={updateTodoItem}
-        className={styles.todoEditing}
       >
         <Form.Item name="content">
           <Input placeholder="请输入待办内容" variant="underlined" />
@@ -184,7 +174,6 @@ const TodoEditing = (props: TodoEditingProps) => {
           <Radio.Group
             block
             size="small"
-            // onChange={changeType}
             optionType="button"
             buttonStyle="outline"
           >
@@ -208,8 +197,6 @@ const TodoEditing = (props: TodoEditingProps) => {
           <Radio.Group
             block
             size="small"
-            // options={priorityOptions}
-            // onChange={changePriority}
             optionType="button"
             buttonStyle="outline"
           >
@@ -229,6 +216,18 @@ const TodoEditing = (props: TodoEditingProps) => {
           </Radio.Group>
         </Form.Item>
       </Form>
+      <div className={styles.todoEditFooter}>
+        <Tooltip title="添加到收集箱">
+          <Button onClick={() => dropToCollectBox()}>
+            <InboxOutlined />
+          </Button>
+        </Tooltip>
+        <Tooltip title="移至回收站">
+          <Button type='primary' danger onClick={() => deleteTodo(todoItem.tid)}>
+            <DeleteOutlined />
+          </Button>
+        </Tooltip>
+      </div>
     </Drawer>
   )
 }

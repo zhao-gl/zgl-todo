@@ -8,6 +8,7 @@ import TodoCenter from "@/pages/todoList/TodoCenter";
 import TodoEditing from "@/pages/todoList/TodoEditing";
 import {PlusOutlined} from "@ant-design/icons";
 import CustomWeekPicker from "./components/CustomWeekPicker/CustomWeekPicker"
+import ZglToolBar from "@/components/zglToolbar/ZglToolbar";
 
 const TodoList = () => {
   const userInfo = JSON.parse(localStorage.getItem('user') || '{}');
@@ -70,6 +71,19 @@ const TodoList = () => {
     }
   }
 
+  // 删除待办
+  const deleteTodo = async (tid: string) => {
+    const res = await window.electronAPI?.dbQuery('todo.deleteTodo', tid)
+    try {
+      if(res.changes){
+        getTodoList()
+        message.success('已移至回收站')
+      }
+    } catch (e) {
+      message.warning('删除失败')
+    }
+  }
+
   useEffect(() => {
     getTodoList()
     getTypeList()
@@ -82,24 +96,26 @@ const TodoList = () => {
   return (
     <div className={styles.todoContainer}>
       {/*工具栏区域*/}
-      <div className={styles.toolBar}>
-        <h3>今日待办</h3>
-        <div className={styles.toolBarOther}>
-          <CustomWeekPicker
-            onDateSelect={(date)=> setDate(date)}
-          />
-          <Select
-            style={{width: '120px', marginLeft: '10px'}}
-            value={sortType}
-            onChange={(value) => setSortType(value)}
-            options={[
-              {value: 1, label: '按创建时间排序'},
-              {value: 2, label: '按优先级排序'},
-              {value: 3, label: '自定义排序'},
-            ]}
-          />
-        </div>
-      </div>
+      <ZglToolBar
+        title={'今日待办'}
+        extra={
+          <>
+            <CustomWeekPicker
+              onDateSelect={(date)=> setDate(date)}
+            />
+            <Select
+              style={{width: '120px', marginLeft: '10px'}}
+              value={sortType}
+              onChange={(value) => setSortType(value)}
+              options={[
+                {value: 1, label: '按创建时间排序'},
+                {value: 2, label: '按优先级排序'},
+                {value: 3, label: '自定义排序'},
+              ]}
+            />
+          </>
+        }
+      />
       {/*输入区域*/}
       <div>
         <Input
@@ -121,6 +137,7 @@ const TodoList = () => {
         setSortType={setSortType}
         setTodoItem={setTodoItem}
         setVisibleTodoEdit={setVisibleTodoEdit}
+        deleteTodo={deleteTodo}
       />
       {/*待办项编辑区域*/}
       <TodoEditing
@@ -130,6 +147,7 @@ const TodoList = () => {
         typeList={typeList}
         getTodoList={getTodoList}
         getTypeList={getTypeList}
+        deleteTodo={deleteTodo}
       />
     </div>
   )

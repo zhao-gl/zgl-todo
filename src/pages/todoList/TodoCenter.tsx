@@ -112,16 +112,17 @@ const SortableItem = ({ id, item, onEdit, onChangeStatus, onDelete, typeColor }:
 
 
 type TodoCenterProps = {
-  todoList: TodoItem[],
-  setTodoList: (todoList: TodoItem[]) => void
-  getTodoList: () => void,
-  setSortType: (sortType: number) => void,
-  setTodoItem: (item: TodoItem) => void
-  setVisibleTodoEdit: (visible: boolean) => void
+  todoList: TodoItem[];
+  setTodoList: (todoList: TodoItem[]) => void;
+  getTodoList: () => void;
+  setSortType: (sortType: number) => void;
+  setTodoItem: (item: TodoItem) => void;
+  setVisibleTodoEdit: (visible: boolean) => void;
+  deleteTodo: (tid: string) => void
 }
 
 const TodoCenter = (props: TodoCenterProps) => {
-  const {todoList, setTodoList, getTodoList, setSortType, setTodoItem, setVisibleTodoEdit} = props
+  const {todoList, setTodoList, getTodoList, setSortType, setTodoItem, setVisibleTodoEdit, deleteTodo} = props
 
   // 修改待办状态
   const changeTodoStatus = async (checked: boolean, item: TodoItem) => {
@@ -139,13 +140,7 @@ const TodoCenter = (props: TodoCenterProps) => {
     setTodoItem(item)
     setVisibleTodoEdit(true)
   }
-  // 删除待办
-  const deleteTodo = async (tid: string) => {
-    const res = await window.electronAPI?.dbQuery('todo.deleteTodo', tid)
-    if(res?.changes){
-      getTodoList()
-    }
-  }
+
   // 拖拽结束
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;

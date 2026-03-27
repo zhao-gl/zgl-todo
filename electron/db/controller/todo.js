@@ -22,24 +22,41 @@ class TodoController {
     return this.db.todo.dbUpdateTodo(params);
   }
 
-  // 根据日期获取待办
+  // 获取列表 并按条件排序 1=创建时间倒序，2=优先级排序，3=自定义排序
   getTodosByDate(params) {
     return this.db.todo.dbTodosByDate(params);
   }
 
-  // 根据 sort 排序
-  getTodosBySort(params) {
-    return this.db.todo.dbTodosBySort(params);
-  }
   // 更新 sort 排序
   batchUpdateTodosSort(params) {
     return this.db.todo.batchUpdateSort(params);
   }
 
-  // 获取所有待办事项
-  getTodosByDone({userId, done}) {
-    return this.db.todo.dbTodosByDone(userId, done)
+  // 查询所有收集箱的待办
+  getCollectTodos(params) {
+    return this.db.todo.dbGetCollectTodos(params)
+  }
+
+  // 添加到收集箱(清空belong_day)
+  dropToCollectBox(params) {
+    return this.db.todo.dbDropToCollectBox(params)
+  }
+
+  // 移出收集箱
+  removeFromCollectBox(params) {
+    return this.db.todo.dbRemoveFromCollectBox(params)
+  }
+
+  // 查询所有已删除的待办
+  getDeletedTodos(params) {
+    return this.db.todo.dbGetDeletedTodos(params)
+  }
+
+  // 从回收站恢复待办
+  restoreTodo(params) {
+    return this.db.todo.dbRestoreTodo(params)
   }
 }
+
 
 module.exports = TodoController;

@@ -54,7 +54,7 @@ class SQLiteDatabase {
         tid TEXT NOT NULL,
         user_id INTEGER NOT NULL,
         content TEXT NOT NULL,
-        desc TEXT,
+        'desc' TEXT,
         done INTEGER DEFAULT 0,
         type_id INTEGER,
         type_color TEXT,
@@ -62,8 +62,7 @@ class SQLiteDatabase {
         sort INTEGER DEFAULT 0,
         priority INTEGER,
         is_deleted INTEGER DEFAULT 0,
-        is_collect INTEGER DEFAULT 0,
-        belong_day TEXT NOT NULL,
+        belong_day TEXT,
         created_at DATETIME DEFAULT (datetime('now', 'localtime')),
         updated_at DATETIME DEFAULT (datetime('now', 'localtime')),
         deleted_at DATETIME,
@@ -83,7 +82,7 @@ class SQLiteDatabase {
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS tb_types (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        todo_ids INTEGER,
+        todo_ids TEXT,
         name TEXT NOT NULL,
         color TEXT NOT NULL,
         created_at DATETIME DEFAULT (datetime('now', 'localtime')),
@@ -188,39 +187,7 @@ class SQLiteDatabase {
     },
 
     /**
-     * 根据优先级排序
-     * @param userId {number} 用户 ID
-     * @param priority {number} 优先级 (0-4)
-     * @returns {Record<string, SQLOutputValue>[]}
-     */
-    dbTodosByPriority: (userId, priority) => {
-      return this.db.prepare(`
-      SELECT *
-      FROM tb_todos
-      WHERE user_id = ?
-        AND priority = ?
-        AND is_deleted = 0
-      ORDER BY priority DESC`
-      ).all(userId, priority);
-    },
-
-    /**
-     * 根据 sort 排序
-     * @param userId {number} 用户 ID
-     * @returns {Record<string, SQLOutputValue>[]}
-     */
-    dbTodosBySort: ({userId}) => {
-      return this.db.prepare(`
-      SELECT *
-      FROM tb_todos
-      WHERE user_id = ?
-        AND is_deleted = 0
-      ORDER BY sort ASC, created_at ASC`
-      ).all(userId);
-    },
-
-    /**
-     * 仅更新待办事项的排序字段（sort）
+     * 更新 sort 排序
      * @param {Array} todos - 待办事项列表
      * @returns {StatementResultingChanges}
      */
@@ -278,6 +245,64 @@ class SQLiteDatabase {
     },
 
     /**
+     * 获取收集箱中的待办事项
+     * @param userId {number} 用户 ID
+     * @returns {Record<string, SQLOutputValue>[]}
+     */
+    dbGetCollectTodos: ({userId}) => {
+      return this.db.prepare(`
+        SELECT * FROM tb_todos
+        WHERE user_id = ?
+        AND (belong_day IS NULL OR belong_day = '')
+        AND is_deleted = 0
+        ORDER BY created_at DESC
+      `).all(userId);
+    },
+
+    /**
+     * 添加到收集箱(清空belong_day)
+     * @param id {number} 待办 ID
+     * @returns {StatementResultingChanges}
+     */
+    dbDropToCollectBox: ({id}) => {
+      return this.db.prepare(`
+        UPDATE tb_todos
+        SET belong_day = NULL
+        WHERE id = ?
+      `).run(id);
+    },
+
+    /**
+     * 移出收集箱到指定日期
+     * @param {Object} params - 参数对象
+     * @param {number} params.id - 待办 ID
+     * @param {string} params.belongDay - 目标日期（格式：YYYY-MM-DD）
+     * @returns {StatementResultingChanges}
+     */
+    dbRemoveFromCollectBox: ({id, belongDay}) => {
+      return this.db.prepare(`
+        UPDATE tb_todos
+        SET belong_day = ?,
+            updated_at = datetime('now', 'localtime')
+        WHERE id = ?
+      `).run(belongDay, id);
+    },
+
+    /**
+     * 获取回收站中的待办事项
+     * @param userId {number} 用户 ID
+     * @returns {Record<string, SQLOutputValue>[]}
+     */
+    dbGetDeletedTodos: (userId) => {
+      return this.db.prepare(`
+        SELECT * FROM tb_todos
+        WHERE user_id = ?
+        AND is_deleted = 1
+        ORDER BY created_at DESC
+      `).all(userId);
+    },
+
+    /**
      * 从回收站恢复待办事项
      * @param id {number} 待办 ID
      * @returns {StatementResultingChanges}
@@ -288,38 +313,6 @@ class SQLiteDatabase {
         SET is_deleted = 0
         WHERE id = ?
       `).run(id);
-    },
-
-    /**
-     * 获取回收站中的待办事项
-     * @param userId {number} 用户 ID
-     * @returns {Record<string, SQLOutputValue>[]}
-     */
-    dbGetDeletedTodos: (userId) => {
-      return this.db.prepare('SELECT * FROM tb_todos WHERE user_id = ? AND is_deleted = 1 ORDER BY created_at DESC').all(userId);
-    },
-
-    /**
-     * 获取收集箱中的待办事项
-     * @param userId {number} 用户 ID
-     * @returns {Record<string, SQLOutputValue>[]}
-     */
-    dbGetCollectTodos: (userId) => {
-      return this.db.prepare('SELECT * FROM tb_todos WHERE user_id = ? AND is_collect = 1 AND is_deleted = 0 ORDER BY created_at DESC').all(userId);
-    },
-
-    /**
-     * 切换收集箱状态
-     * @param id {number} 待办 ID
-     * @param isCollect {boolean} 是否收集
-     * @returns {StatementResultingChanges}
-     */
-    dbToggleCollect: (id, isCollect) => {
-      return this.db.prepare(`
-        UPDATE tb_todos
-        SET is_collect = ?
-        WHERE id = ?
-      `).run(isCollect ? 1 : 0, id);
     }
   }
 
@@ -395,10 +388,9 @@ class SQLiteDatabase {
     /**
      * 登录
      * @param username {string} 用户名
-     * @param password {string} 密码
      * @returns {Record<string, SQLOutputValue> | null}
      */
-    dbLogin: (username, password) => {
+    dbLogin: (username) => {
       return this.db.prepare(`
       SELECT *
       FROM tb_users
