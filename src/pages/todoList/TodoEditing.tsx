@@ -188,17 +188,16 @@ const TodoEditing = (props: TodoEditingProps) => {
             optionType="button"
             buttonStyle="outline"
           >
-            <div className={styles.customRadioGroup}>
+            <div className={styles.typeRadioGroup}>
               {typeList.map((item) => (
                 <Radio.Button
                   key={item.id}
                   value={item.id}
-                  className={styles.customRadioButton}
                   style={{ borderRadius: '30px', margin: '4px' }}
                 >
-                  <div className={styles.radioButtonTextWrapper}>
-                    <div style={{backgroundColor: item.color}} className={styles.radioButtonIcon}></div>
-                    <div className={styles.radioButtonText}>{item.name}</div>
+                  <div className={styles.typeRadioButtonTextWrapper}>
+                    <div style={{backgroundColor: item.color}} className={styles.typeRadioButtonIcon}></div>
+                    <div className={styles.typeRadioButtonText}>{item.name}</div>
                   </div>
                 </Radio.Button>
               ))}
@@ -209,19 +208,24 @@ const TodoEditing = (props: TodoEditingProps) => {
           <Radio.Group
             block
             size="small"
-            options={priorityOptions}
+            // options={priorityOptions}
             // onChange={changePriority}
             optionType="button"
             buttonStyle="outline"
           >
-            {priorityOptions.map((item) => (
-              <Radio.Button
-                key={item.value}
-                value={item.value}
-              >
-                <div>{item.label}</div>
-              </Radio.Button>
-            ))}
+            <div className={styles.priorityRadioGroup}>
+              {priorityOptions.map((item) => (
+                <Radio.Button
+                  key={item.value}
+                  value={item.value}
+                >
+                  <div className={styles.priorityRadioWrapper}>
+                    <div className={styles.priorityRadioIcon} style={{backgroundColor: item.activeColor}}></div>
+                    <div className={styles.priorityRadioText}>{item.label}</div>
+                  </div>
+                </Radio.Button>
+              ))}
+            </div>
           </Radio.Group>
         </Form.Item>
       </Form>

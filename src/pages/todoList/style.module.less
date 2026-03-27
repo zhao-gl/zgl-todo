@@ -135,7 +135,7 @@
   }
 }
 
-.customRadioGroup {
+.typeRadioGroup {
   max-height: 100px;
   overflow-y: auto;
   &::-webkit-scrollbar {
@@ -152,21 +152,36 @@
       background: #a8a8a8;
     }
   }
-  .radioButtonTextWrapper {
+  .typeRadioButtonTextWrapper {
     width: 65px;
     display: flex;
     align-items: center;
-    .radioButtonIcon {
+    .typeRadioButtonIcon {
       width: 12px;
       height: 12px;
       border-radius: 50%;
       margin-right: 8px;
     }
-    .radioButtonText {
+    .typeRadioButtonText {
       width: 50px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+  }
+}
+
+.priorityRadioGroup {
+  .priorityRadioWrapper {
+    display: flex;
+    align-items: center;
+    .priorityRadioIcon {
+      width: 2px;
+      height: 12px;
+    }
+    .priorityRadioText {
+      width: 48px;
+      margin-left: 4px;
     }
   }
 }
