@@ -38,9 +38,9 @@ function createWindow () {
   console.log('正在创建主窗口');
   mainWindow = new BrowserWindow({
     width: 1200,
-    height: 800,
+    height: 830,
     minWidth: 1000,
-    minHeight: 600,
+    minHeight: 830,
     icon: path.join(__dirname, 'build/icon_256x256.png'),
     frame: false, // 移除默认的菜单栏
     show: false,
