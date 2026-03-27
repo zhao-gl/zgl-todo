@@ -64,12 +64,12 @@ const Lv1Menu = () => {
   };
 
   // 点击标签
-  const handleTypeClick = (type: string) => {
-    setCurrentMenu(type)
+  const handleTypeClick = (item: typeof typeList[0]) => {
+    setCurrentMenu(item.name)
     navigate({
       pathname: '/menu/type',
-      search: `?type=${encodeURIComponent(type)}`
-    }, { replace: false });
+      search: `?id=${encodeURIComponent(item.id)}&name=${encodeURIComponent(item.name)}`
+    }, { replace: true });
   };
 
   // 点击回收站
@@ -140,7 +140,7 @@ const Lv1Menu = () => {
               type="text"
               className={currentMenu === item.name ? styles.activeMenu : ''}
               key={item.name}
-              onClick={() => handleTypeClick(item.name)}
+              onClick={() => handleTypeClick(item)}
             >
               <div className={styles.typeColor} style={{ backgroundColor: item.color }} />
               {item.name}

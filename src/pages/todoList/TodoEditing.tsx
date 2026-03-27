@@ -217,11 +217,13 @@ const TodoEditing = (props: TodoEditingProps) => {
         </Form.Item>
       </Form>
       <div className={styles.todoEditFooter}>
-        <Tooltip title="添加到收集箱">
-          <Button onClick={() => dropToCollectBox()}>
-            <InboxOutlined />
-          </Button>
-        </Tooltip>
+        {todoItem.done === 0 &&
+          <Tooltip title="添加到收集箱">
+            <Button onClick={() => dropToCollectBox()}>
+              <InboxOutlined />
+            </Button>
+          </Tooltip>
+        }
         <Tooltip title="移至回收站">
           <Button type='primary' danger onClick={() => deleteTodo(todoItem.tid)}>
             <DeleteOutlined />

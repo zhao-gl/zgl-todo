@@ -47,6 +47,11 @@ class TodoController {
     return this.db.todo.dbRemoveFromCollectBox(params)
   }
 
+  // 根据 type_id 获取待办列表
+  getTodosByTypeId(params) {
+    return this.db.todo.dbTodosByTypeId(params)
+  }
+
   // 查询所有已删除的待办
   getDeletedTodos(params) {
     return this.db.todo.dbGetDeletedTodos(params)

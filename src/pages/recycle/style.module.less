@@ -1,9 +1,9 @@
-.collectList {
+.recycleList {
   height: calc(100% - 48px);
   overflow-y: auto;
-  .collectItem {
+  .recycleItem {
     height: auto;
-    min-height: 64px;
+    //min-height: 64px;
     margin-bottom: 8px;
     background-color: #fff;
     border-radius: 4px;
@@ -16,26 +16,29 @@
       background-color: #fafafa;
     }
   }
-  .collectItemContent {
+  .recycleItemContent {
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
-  .collectItemText {
+  .recycleItemText {
     font-size: 15px;
     font-weight: 500;
     color: #262626;
     word-break: break-word;
     line-height: 1.5;
   }
-  .collectItemDesc {
+  .textDone {
+    text-decoration: line-through;
+    color: #999;
+  }
+  .recycleItemDesc {
     font-size: 12px;
     color: #999;
-    line-height: 1.4;
   }
-  .collectItemBtn {
+  .recycleItemBtn {
     font-size: 18px;
     flex-shrink: 0;
     cursor: pointer;

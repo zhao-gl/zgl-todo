@@ -289,11 +289,38 @@ class SQLiteDatabase {
     },
 
     /**
+     * 根据类型 ID 获取待办事项列表
+     * @param {number} userId - 用户 ID
+     * @param {number} typeId - 类型 ID
+     * @param {number} sortType - 排序类型：1=创建时间倒序，2=优先级排序，3=自定义排序
+     * @returns {Record<string, SQLOutputValue>[]}
+     */
+    dbTodosByTypeId: ({userId, typeId, sortType = 1}) => {
+      // 定义合法的排序选项（防止 SQL 注入）
+      const sortOptions = {
+        1: 'created_at DESC',
+        2: 'priority ASC, created_at DESC',
+        3: 'sort ASC, created_at DESC'
+      };
+      // 验证 sortType 是否合法
+      if (!sortOptions.hasOwnProperty(sortType)) {
+        throw new Error(`Invalid sortType: ${sortType}. Expected 1, 2, or 3.`);
+      }
+      const orderByClause = sortOptions[sortType];
+      const sql = `        SELECT * FROM tb_todos
+        WHERE user_id = ?
+          AND type_id = ?
+          AND is_deleted = 0
+        ORDER BY ${orderByClause}      `;
+      return this.db.prepare(sql).all(userId, typeId);
+    },
+
+    /**
      * 获取回收站中的待办事项
      * @param userId {number} 用户 ID
      * @returns {Record<string, SQLOutputValue>[]}
      */
-    dbGetDeletedTodos: (userId) => {
+    dbGetDeletedTodos: ({userId}) => {
       return this.db.prepare(`
         SELECT * FROM tb_todos
         WHERE user_id = ?
@@ -307,7 +334,7 @@ class SQLiteDatabase {
      * @param id {number} 待办 ID
      * @returns {StatementResultingChanges}
      */
-    dbRestoreTodo: (id) => {
+    dbRestoreTodo: ({id}) => {
       return this.db.prepare(`
         UPDATE tb_todos
         SET is_deleted = 0

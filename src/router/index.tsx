@@ -8,6 +8,7 @@ import Collect from "@/pages/collect/Collect";
 import Recycle from "@/pages/recycle/Recycle";
 import Statistics from "@/pages/statistics/Statistics";
 import Login from "@/pages/login/Login";
+import SelectType from "@/pages/selectType/SelectType";
 
 const routes: RouteObject[] = [
   {
@@ -45,6 +46,10 @@ const routes: RouteObject[] = [
               title: '收集箱',
               icon: <InboxOutlined />
             }
+          },
+          {
+            path: '/menu/type',
+            element: <SelectType />,
           },
           // {
           //   path: '/menu/statistics',
