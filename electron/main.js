@@ -49,7 +49,8 @@ function createWindow () {
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,
-      devTools: true // 生产禁用 DevTools
+      devTools: true, // 生产禁用 DevTools
+      spellcheck: false // 禁用拼写检查
     }
   })
 

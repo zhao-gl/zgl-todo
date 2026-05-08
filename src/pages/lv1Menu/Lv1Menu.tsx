@@ -2,14 +2,15 @@ import { RouteObject, useNavigate, useLocation } from 'react-router-dom';
 import { getTargetRoute } from "@/router"
 import { useEffect, useState } from "react";
 import styles from "./style.module.less"
-import { Avatar, Button, Divider, Dropdown } from "antd";
-import {DeleteOutlined, LogoutOutlined, MoreOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
+import { Avatar, Button, Divider, Dropdown, App } from "antd";
+import {DeleteOutlined, ExclamationCircleOutlined, LogoutOutlined, MoreOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
 import type { MenuProps } from 'antd';
 import Settings from "./modal/settings/Settings";
 
 const Lv1Menu = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { modal } = App.useApp();
   const [tabList, setTabList] = useState<RouteObject[]>([])
   const [typeList, setTypeList] = useState<any[]>([])
   const [currentMenu, setCurrentMenu] = useState<string>('/menu/todo')
@@ -17,6 +18,22 @@ const Lv1Menu = () => {
   // 设置区域
   const [isOpenSetting, setIsOpenSetting] = useState(false);
   const [defSettingArea, setDefSettingArea] = useState('1');
+
+  // 退出登录
+  const handleLogout = () => {
+    modal.confirm({
+      title: '确认退出',
+      icon: <ExclamationCircleOutlined />,
+      content: '退出登录后需要重新输入账号密码，确定要退出吗？',
+      okText: '确认退出',
+      cancelText: '取消',
+      okButtonProps: { danger: true },
+      onOk: () => {
+        localStorage.removeItem('user');
+        navigate('/login', { replace: true });
+      },
+    });
+  };
 
   // 菜单项
   const items: MenuProps['items'] = [
@@ -33,18 +50,14 @@ const Lv1Menu = () => {
       key: '2',
       icon: <SettingOutlined />,
       onClick: () => {
-        openSetting('2')
+        openSetting('3')
       },
     },
     {
       label: (<span style={{color: '#f5222d'}}>退出登录</span>),
       key: '3',
       icon: <LogoutOutlined />,
-      onClick: () => {
-        console.log('退出登录')
-        localStorage.removeItem('user');
-        navigate('/login', { replace: true });
-      },
+      onClick: handleLogout,
     },
   ];
 

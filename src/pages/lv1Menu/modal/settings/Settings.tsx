@@ -35,7 +35,7 @@ const Settings = (props: SettingsProps) => {
     },
     {
       key: '3',
-      label: '设置',
+      label: '通用设置',
       icon: <SettingOutlined />,
     },
   ];
@@ -101,6 +101,7 @@ const Settings = (props: SettingsProps) => {
               setOpen={setOpen}
             />
           }
+          {/* 通用设置 */}
           {selectedKeys[0] === '3' &&
             <div style={{ padding: '16px' }}>
               <Typography.Title level={5} style={{ marginBottom: 24 }}>
