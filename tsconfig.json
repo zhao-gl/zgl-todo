@@ -24,7 +24,7 @@
   "include": [
     "src",
     "src/**/*" // 确保包含 src/types/
-  ],
+, "scripts/generate-icons.js"  ],
   "exclude": [
     "node_modules",
     "dist",
