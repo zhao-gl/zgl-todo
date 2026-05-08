@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {Button, DatePicker, Tooltip} from 'antd';
 import styles from './style.module.less';
 import dayjs from "dayjs";
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 
 interface CustomWeekPickerProps {
   initialSelectedDate?: Date;
@@ -106,8 +107,8 @@ const CustomWeekPicker: React.FC<CustomWeekPickerProps> = (props) => {
         {/* 今天 */}
         <Button
           onClick={() => {
-            setCustomSelectedDate(null)
-            jumpToDate(dayjs())
+            setCustomSelectedDate(null);
+            jumpToDate(dayjs());
           }}
           icon={<span>☀</span>}
           type="text"
@@ -116,7 +117,7 @@ const CustomWeekPicker: React.FC<CustomWeekPickerProps> = (props) => {
         {/* 左箭头 */}
         <Button
           className={styles.navButton}
-          icon={<span>❮</span>}
+          icon={<LeftOutlined />}
           onClick={() => changeWeek(-7)}
           type="text"
         />
@@ -135,13 +136,13 @@ const CustomWeekPicker: React.FC<CustomWeekPickerProps> = (props) => {
                 <div className={styles.dayItem}>
                   <button
                     onClick={() => {
-                      setCustomSelectedDate(null)
+                      setCustomSelectedDate(null);
                       setSelectedDate(day);
                       if (onDateSelect) {
-                        onDateSelect(dayjs(day).format('YYYY-MM-DD'));
+                        onDateSelect(dayjs(day).format("YYYY-MM-DD"));
                       }
                     }}
-                    className={`${styles.dayButton} ${isSelected ? styles.selected : ''} ${isToday ? styles.today : ''}`}
+                    className={`${styles.dayButton} ${isSelected ? styles.selected : ""} ${isToday ? styles.today : ""}`}
                   >
                     {day.getDate()}
                   </button>
@@ -154,23 +155,23 @@ const CustomWeekPicker: React.FC<CustomWeekPickerProps> = (props) => {
         {/* 右箭头 */}
         <Button
           className={styles.navButton}
-          icon={<span>❯</span>}
+          icon={<RightOutlined />}
           onClick={() => changeWeek(7)}
           type="text"
         />
 
         {/*自定义选择日期*/}
         <DatePicker
-          placeholder='自定义日期'
+          placeholder="自定义日期"
           showNow={false}
-          style={{marginBottom: -2}}
+          style={{ marginBottom: -2 }}
           value={customSelectedDate}
-          onChange={(date)=>{
-            setCustomSelectedDate(date)
-            if(date){
-              jumpToDate(date)
-            }else{
-              jumpToDate(new Date())
+          onChange={(date) => {
+            setCustomSelectedDate(date);
+            if (date) {
+              jumpToDate(date);
+            } else {
+              jumpToDate(new Date());
             }
           }}
         />

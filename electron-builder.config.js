@@ -26,14 +26,15 @@ module.exports = {
     '!**/*.debug',
     '!**/debug/**',
     '!**/*.map', // 移除 sourcemap
-    '!**/*.ts', // 移除源码
+    '!**/*.ts', // 移除ts源码
     '!**/*.md',
     '!**/LICENSE*',
     '!**/README*',
     '!**/__tests__/**/*',
     '!**/test/**/*',
     '!**/*.spec.*',
-    '!**/*.test.*'
+    '!**/*.test.*',
+    '!node_modules/*/{test,example}'
   ],
 
   compression: 'maximum', // 启用最高级别压缩

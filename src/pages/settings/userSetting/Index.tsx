@@ -1,5 +1,5 @@
 import { UserOutlined } from "@ant-design/icons";
-import {Button, Form, Input, message, Modal, Typography} from "antd";
+import {App, Button, Form, Input, message, Space, Typography} from "antd";
 import {forwardRef, useEffect, useImperativeHandle, useState} from "react";
 import {useNavigate} from "react-router-dom";
 
@@ -12,6 +12,7 @@ type UserSettingProps = {
 const UserSetting = forwardRef((props: UserSettingProps, ref) => {
   const {activeKey, userInfo, setOpen} = props
   const navigate = useNavigate();
+  const { modal } = App.useApp();
   const [userForm] = Form.useForm();
   const [isChangePwd, setIsChangePwd] = useState(false); // 修改密码
 
@@ -51,6 +52,32 @@ const UserSetting = forwardRef((props: UserSettingProps, ref) => {
       });
     }
   }
+
+  // 删除用户
+  const handleDeleteUser = () => {
+    modal.confirm({
+      title: '确认删除用户',
+      content: '删除后所有待办数据将永久丢失，且无法恢复，确定要删除吗？',
+      okText: '确认删除',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          const res = await window.electronAPI?.dbQuery('user.deleteUser', userInfo.id);
+          if (res?.changes === 1) {
+            message.success('用户已删除');
+            setOpen(false);
+            localStorage.removeItem('user');
+            navigate('/login', { replace: true });
+          } else {
+            message.error('删除失败');
+          }
+        } catch {
+          message.error('发生未知错误');
+        }
+      },
+    });
+  };
 
   useEffect(()=>{
     if(activeKey === '1') echoUserinfo()
@@ -104,7 +131,7 @@ const UserSetting = forwardRef((props: UserSettingProps, ref) => {
           </>
         )}
       </Form>
-      <div style={{ textAlign: "right" }}>
+      <Space style={{ width: "100%", justifyContent: "flex-end" }}>
         <Button
           type="primary"
           danger
@@ -119,7 +146,10 @@ const UserSetting = forwardRef((props: UserSettingProps, ref) => {
         >
           {isChangePwd ? "取消修改密码" : "修改密码"}
         </Button>
-      </div>
+        <Button type="primary" danger onClick={handleDeleteUser}>
+          删除用户
+        </Button>
+      </Space>
     </div>
   );
 })

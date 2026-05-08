@@ -14,10 +14,10 @@ const controllers = {
 
 // 设置ipc事件监听器
 function setIpcEventListener() {
-  // 监听-关闭窗口
+  // 监听-关闭窗口（隐藏到托盘）
   ipcMain.on('window-close', (event) => {
     const win = getWindowFromEvent(event);
-    if (win) win.close();
+    if (win) win.hide();
   });
 
   // 监听-最小化窗口

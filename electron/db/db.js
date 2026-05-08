@@ -434,16 +434,20 @@ class SQLiteDatabase {
     },
 
     /**
-     * 删除用户
+     * 删除用户（级联删除关联的待办和设置）
      * @param id {number} 用户id
      * @returns {StatementResultingChanges}
      */
     dbDeleteUser: (id) => {
-      return this.db.prepare(`
-        DELETE
-        FROM tb_users
-        WHERE id = ?`
-      ).run(id);
+      const transaction = this.db.transaction(() => {
+        // 先删除用户的所有待办
+        this.db.prepare(`DELETE FROM tb_todos WHERE user_id = ?`).run(id);
+        // 再删除用户的设置
+        this.db.prepare(`DELETE FROM tb_settings WHERE user_id = ?`).run(id);
+        // 最后删除用户
+        return this.db.prepare(`DELETE FROM tb_users WHERE id = ?`).run(id);
+      });
+      return transaction();
     },
 
     /**
