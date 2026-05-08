@@ -5,7 +5,7 @@ import styles from "./style.module.less"
 import { Avatar, Button, Divider, Dropdown, App } from "antd";
 import {DeleteOutlined, ExclamationCircleOutlined, LogoutOutlined, MoreOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
 import type { MenuProps } from 'antd';
-import Settings from "./modal/settings/Settings";
+import Settings from "@/pages/settings/Settings";
 
 const Lv1Menu = () => {
   const navigate = useNavigate();
