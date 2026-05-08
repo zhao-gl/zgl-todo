@@ -14,17 +14,17 @@
       -webkit-app-region: no-drag; /* 👈 按钮不可拖动 */
       background: transparent;
       border: none;
-      color: #333;
+      color: var(--text-primary);
       width: 30px;
       cursor: pointer;
       line-height: 28px;
       padding: 0;
       font-weight: 400;
       &:not(:last-child):hover {
-        background: rgba(0, 0, 0, 0.1);
+        background: var(--header-btn-hover);
       }
       &:last-child:hover {
-        background: rgba(232, 17, 35, 0.63);
+        background: var(--header-close-hover);
         color: white;
       }
     }

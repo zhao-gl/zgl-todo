@@ -27,14 +27,14 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);  // 半透明灰色
+    background: var(--scrollbar-thumb);
     border-radius: 4px;
-    min-height: 20px;  // 最小滑块高度
-    width: 1px;       // 实际可见滑块宽度2px
+    min-height: 20px;
+    width: 1px;
     transition: background 0.3s ease;
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.2);  // 悬停时加深
+    background: var(--scrollbar-thumb-hover);
   }
 }

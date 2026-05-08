@@ -1,15 +1,13 @@
 .datePickerContainer {
-  background: #fff;
+  background: var(--bg-primary);
   border-radius: 12px;
   max-width: 500px;
   margin: 0 auto;
-  //margin-right: 60px;
 
   .daysWrapper {
     display: flex;
-    align-items: center; // 垂直居中箭头和日期
+    align-items: center;
     justify-content: space-between;
-    //gap: 4px;
   }
 
   .navButton {
@@ -19,18 +17,18 @@
     align-items: center;
     justify-content: center;
     border-radius: 8px;
-    color: #bfbfbf;
+    color: var(--text-disabled);
 
     &:hover {
-      color: #1677ff;
-      background: #f0f7ff;
+      color: var(--color-primary);
+      background: var(--bg-active);
     }
   }
 
   .daysContainer {
     display: flex;
-    flex: 1; // 占据中间剩余所有空间
-    justify-content: space-between; // 7个日期均匀分布
+    flex: 1;
+    justify-content: space-between;
     align-items: center;
   }
 
@@ -42,14 +40,14 @@
 
     .weekLabel {
       font-size: 12px;
-      color: #8c8c8c;
+      color: var(--text-tertiary);
     }
   }
 
   .dayButton {
     width: 36px;
     height: 36px;
-    border-radius: 50%; // 纯圆按钮
+    border-radius: 50%;
     border: none;
     background: transparent;
     cursor: pointer;
@@ -60,21 +58,21 @@
     align-items: center;
     justify-content: center;
     margin: 0 2px;
+    color: var(--text-primary);
 
     &:hover {
-      background: #f5f5f5;
+      background: var(--bg-tertiary);
     }
 
     &.today {
-      color: #1677ff;
-      background: #e6f4ff;
+      color: var(--color-primary);
+      background: var(--bg-active);
     }
 
     &.selected {
       background: rgba(64, 150, 255, 0.7);
       color: #fff !important;
       font-weight: bold;
-      //box-shadow: 0 4px 8px rgba(22, 119, 255, 0.25);
     }
   }
 
@@ -83,9 +81,9 @@
     text-align: center;
     font-size: 14px;
     font-weight: 600;
-    color: #262626;
+    color: var(--text-primary);
     padding: 8px;
-    background: #fafafa;
+    background: var(--bg-secondary);
     border-radius: 6px;
   }
 }

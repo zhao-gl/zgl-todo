@@ -30,10 +30,10 @@ const Lv1Menu = () => {
     },
     {
       label: '设置',
-      key: '3',
+      key: '2',
       icon: <SettingOutlined />,
       onClick: () => {
-        openSetting('3')
+        openSetting('2')
       },
     },
     {

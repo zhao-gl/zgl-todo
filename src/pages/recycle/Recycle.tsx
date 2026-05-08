@@ -1,7 +1,7 @@
 import ZglToolbar from "@/components/zglToolbar/ZglToolbar";
 import styles from "./style.module.less";
 import {Checkbox, message, Tooltip} from "antd";
-import {UpCircleOutlined} from "@ant-design/icons";
+import {RollbackOutlined, UpCircleOutlined} from "@ant-design/icons";
 import {useEffect, useState} from "react";
 import {TodoItem} from "@/types/todoList";
 
@@ -53,7 +53,7 @@ const Recycle = () => {
             </div>
             <div className={styles.recycleItemBtn} onClick={() => recoverFromRecycle(item)}>
               <Tooltip title={'恢复待办'}>
-                <UpCircleOutlined />
+                <RollbackOutlined />
               </Tooltip>
             </div>
           </div>

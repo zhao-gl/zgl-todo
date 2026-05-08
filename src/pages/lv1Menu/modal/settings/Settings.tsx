@@ -1,10 +1,11 @@
-import {Menu, Modal, Form, Input, Button, message, Tag, Row, Col, ColorPicker} from "antd";
-import {GroupOutlined, PlusOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
+import {Menu, Modal, Form, Input, Button, message, Tag, Row, Col, ColorPicker, Switch, Typography} from "antd";
+import {GroupOutlined, PlusOutlined, SettingOutlined, UserOutlined, BulbOutlined} from "@ant-design/icons";
 import type { ColorPickerProps, GetProp } from 'antd';
 import type { MenuProps } from 'antd';
 import {useEffect, useRef, useState} from "react";
 import UserSetting from "@/pages/lv1Menu/modal/settings/UserSetting";
 import TypeSetting from "@/pages/lv1Menu/modal/settings/TypeSetting";
+import { useTheme } from "@/global/ThemeContext";
 type MenuItem = Required<MenuProps>['items'][number];
 type SettingsProps = {
   open: boolean;
@@ -17,6 +18,7 @@ const Settings = (props: SettingsProps) => {
   const {open, setOpen, defSettingArea, getTypeList} = props;
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const userInfo = JSON.parse(localStorage.getItem('user') || '{}');
+  const { theme, toggleTheme } = useTheme();
   // 个人信息
   const userSettingRef = useRef<any>(null);
   // 分类管理
@@ -38,7 +40,7 @@ const Settings = (props: SettingsProps) => {
     },
   ];
 
-  // 点击保存
+  // 点击确认
   const handleOk = () => {
     const activeKey = selectedKeys[0];
     if(activeKey === '1'){
@@ -48,7 +50,7 @@ const Settings = (props: SettingsProps) => {
       setOpen(false)
     }
     if(activeKey === '3'){
-      console.log('设置')
+      setOpen(false);
     }
   };
 
@@ -70,7 +72,7 @@ const Settings = (props: SettingsProps) => {
       destroyOnHidden={true}
       maskClosable={false}
       cancelText="取消"
-      okText={selectedKeys[0] === '2' ? '关闭' : "确认"}
+      okText={"确认"}
       onOk={() => handleOk()}
       onCancel={() => setOpen(false)}
     >
@@ -100,9 +102,36 @@ const Settings = (props: SettingsProps) => {
             />
           }
           {selectedKeys[0] === '3' &&
-            <div>
-              设置
-              {}
+            <div style={{ padding: '16px' }}>
+              <Typography.Title level={5} style={{ marginBottom: 24 }}>
+                <BulbOutlined style={{ marginRight: 8 }} />
+                外观设置
+              </Typography.Title>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '16px 20px',
+                background: 'var(--bg-secondary)',
+                borderRadius: 8,
+                border: '1px solid var(--border-color)',
+              }}>
+                <div>
+                  <Typography.Text strong style={{ fontSize: 15 }}>
+                    {theme === 'dark' ? '🌙 深色模式' : '☀️ 浅色模式'}
+                  </Typography.Text>
+                  <br />
+                  <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                    {theme === 'dark' ? '适合低光环境，减少眼部疲劳' : '明亮清晰，适合日间使用'}
+                  </Typography.Text>
+                </div>
+                <Switch
+                  checked={theme === 'dark'}
+                  onChange={toggleTheme}
+                  checkedChildren="深色"
+                  unCheckedChildren="浅色"
+                />
+              </div>
             </div>
           }
         </div>
