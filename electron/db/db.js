@@ -340,6 +340,22 @@ class SQLiteDatabase {
         SET is_deleted = 0
         WHERE id = ?
       `).run(id);
+    },
+
+    /**
+     * 按月查询待办事项（用于月视图日历）
+     * @param {number} userId - 用户 ID
+     * @param {string} yearMonth - 年月（格式：YYYY-MM）
+     * @returns {Record<string, SQLOutputValue>[]}
+     */
+    dbTodosByMonth: ({userId, yearMonth}) => {
+      return this.db.prepare(`
+        SELECT * FROM tb_todos
+        WHERE user_id = ?
+          AND belong_day LIKE ?
+          AND is_deleted = 0
+        ORDER BY belong_day ASC, priority ASC, created_at ASC
+      `).all(userId, `${yearMonth}%`);
     }
   }
 

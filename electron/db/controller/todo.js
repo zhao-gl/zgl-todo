@@ -61,6 +61,11 @@ class TodoController {
   restoreTodo(params) {
     return this.db.todo.dbRestoreTodo(params)
   }
+
+  // 按月查询待办（月视图）
+  getTodosByMonth(params) {
+    return this.db.todo.dbTodosByMonth(params)
+  }
 }
 
 

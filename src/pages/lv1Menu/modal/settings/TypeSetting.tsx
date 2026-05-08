@@ -1,43 +1,46 @@
 import {
+  App,
   Button,
   ColorPicker,
   type ColorPickerProps,
+  Empty,
   Form,
   type GetProp,
   Input,
-  List,
   message,
-  Modal,
-  Tag,
+  Popconfirm,
   Tooltip,
-  type ModalFuncProps
+  Typography,
 } from "antd";
-import {useEffect, useState} from "react";
-import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
-import {TypeItem} from "@/types/typeList";
+import { useEffect, useState } from "react";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { TypeItem } from "@/types/typeList";
+import styles from "./typeSetting.module.less";
+
 type TypeSettingProps = {
-  activeKey: string,
-  setOpen: (open: boolean) => void;
-}
+  activeKey: string;
+};
 type ColorValue = GetProp<ColorPickerProps, 'value'>;
-type Color = Extract<GetProp<ColorPickerProps, 'value'>, string | { cleared: any }>;
 
 const TypeSetting = (props: TypeSettingProps) => {
-  const {activeKey, setOpen} = props;
+  const { activeKey } = props;
+  const { modal } = App.useApp();
   const [typesForm] = Form.useForm();
   const [editForm] = Form.useForm();
   const [types, setTypes] = useState<TypeItem[]>([]);
+  const [adding, setAdding] = useState(false);
 
   // 获取所有分类
   const getAllTypes = async () => {
     const res = await window.electronAPI?.dbQuery('type.getAllTypes');
-    if(Array.isArray(res)){
-      setTypes(res)
+    if (Array.isArray(res)) {
+      setTypes(res);
     }
   };
 
   // 添加分类
   const addTypes = async (values: any) => {
+    setAdding(true);
     try {
       const colorStr = getColorString(values.color);
       const res = await window.electronAPI?.dbQuery('type.addType', {
@@ -45,176 +48,187 @@ const TypeSetting = (props: TypeSettingProps) => {
         color: colorStr,
       });
       if (res?.changes === 1) {
-        message.success('添加成功！');
+        message.success('添加成功');
         typesForm.resetFields();
         getAllTypes();
       } else {
-        message.error('添加失败！');
+        message.error('添加失败');
       }
-    } catch (e) {
-      console.error(e);
+    } catch {
       message.error('发生未知错误');
+    } finally {
+      setAdding(false);
     }
   };
 
   // 删除分类
   const deleteType = async (id: number) => {
-    const res = await window.electronAPI?.dbQuery('type.deleteType',id);
-    if(res?.changes === 1){
-      message.success('删除成功！');
-      getAllTypes()
-    }else{
-      message.error('删除失败！');
+    const res = await window.electronAPI?.dbQuery('type.deleteType', id);
+    if (res?.changes === 1) {
+      message.success('已删除');
+      getAllTypes();
+    } else {
+      message.error('删除失败');
     }
   };
 
   // 修改分类
   const updateType = (item: TypeItem) => {
-    // 在打开弹窗前，先填充表单数据（回显）
     editForm.setFieldsValue({
       name: item.name,
       color: item.color,
     });
 
-    Modal.confirm({
-      title: '修改分类',
-      icon: <EditOutlined />,
+    modal.confirm({
+      title: '编辑分类',
+      icon: null,
+      width: 400,
       content: (
         <Form
-          form={editForm} // 绑定顶层定义的 form 实例
-          labelCol={{ span: 6 }}
-          wrapperCol={{ span: 16 }}
-          labelAlign="left"
+          form={editForm}
+          layout="vertical"
+          style={{ marginTop: 16 }}
         >
           <Form.Item
-            label="分类名称"
+            label="名称"
             name="name"
             rules={[{ required: true, message: '请输入分类名称' }]}
           >
             <Input placeholder="请输入分类名称" />
           </Form.Item>
           <Form.Item
-            label="分类颜色"
+            label="颜色"
             name="color"
             rules={[{ required: true, message: '请选择颜色' }]}
           >
-            <ColorPicker />
+            <ColorPicker showText />
           </Form.Item>
         </Form>
       ),
+      okText: '保存',
+      cancelText: '取消',
       onOk: async () => {
-        // eslint-disable-next-line no-useless-catch
         try {
-          // 验证并获取最新值
           const values = await editForm.validateFields();
           const colorStr = getColorString(values.color);
-          const params = {
-            id: item.id,
-            name: values.name,
-            color: colorStr,
-          };
+          const params = { id: item.id, name: values.name, color: colorStr };
           const res = await window.electronAPI?.dbQuery('type.updateType', params);
           if (res?.changes === 1) {
-            message.success('修改成功！');
+            message.success('修改成功');
             getAllTypes();
           } else {
-            message.error('修改失败！');
+            message.error('修改失败');
           }
-        } catch (error) {
-          // 验证失败会进入这里，通常不需要提示，因为 Form 已经显示红字了
-          throw error; // 阻止 Modal 关闭
+        } catch {
+          throw new Error(); // 阻止关闭
         }
       },
-      // 3. 关键：弹窗关闭后重置表单，防止下次打开残留数据
-      afterClose: () => {
-        editForm.resetFields();
-      },
-    } as ModalFuncProps);
+      afterClose: () => editForm.resetFields(),
+    });
   };
 
-  // 辅助函数：统一将 Color 对象转换为 Hex 字符串
+  // 颜色转字符串
   const getColorString = (colorVal: ColorValue): string => {
-    if (!colorVal) return '#ffffff';
+    if (!colorVal) return '#1677ff';
     if (typeof colorVal === 'string') return colorVal;
-    if ('cleared' in colorVal && colorVal.cleared) return '#ffffff';
-    // AntD v5.12+ Color 对象
-    return (colorVal as any).toHexString ? (colorVal as any).toHexString() : '#ffffff';
+    if ('cleared' in colorVal && colorVal.cleared) return '#1677ff';
+    return (colorVal as any).toHexString?.() ?? '#1677ff';
   };
 
-  useEffect(()=>{
-    if(activeKey === '2'){
-      getAllTypes()
-    }
-  }, [activeKey])
+  useEffect(() => {
+    if (activeKey === '2') getAllTypes();
+  }, [activeKey]);
 
   return (
-    <>
-      <Form form={typesForm} style={{position: 'relative'}} labelCol={{ span: 4 }} onFinish={addTypes}>
-        <Form.Item label="分类名称" name="name" rules={[{ required: true, message: '请输入分类名称' }]}>
-          <Input placeholder="请输入分类名称" />
-        </Form.Item>
-        <Form.Item label="分类颜色" name="color" rules={[{ required: true, message: '请选择分类颜色' }]}>
-          <ColorPicker style={{width: '10%'}} />
-        </Form.Item>
-        <Button
-          style={{width: '15%', marginLeft: '8px', position: 'absolute', right: '0', bottom: '2px'}}
-          onClick={() => typesForm.submit()}
-        >添加</Button>
-      </Form>
-      <div style={{margin: '8px'}}>
-        <div style={{marginBottom: '8px'}}>已有分类：</div>
-        <div
-          style={{
-            height: 300,
-            overflow: 'auto',
-            padding: '8px',
-            border: '1px solid #e1e1e1',
-            borderRadius: '4px'
-          }}
-        >
-          <List
-            className="demo-loadmore-list"
-            itemLayout="horizontal"
-            dataSource={types}
-            renderItem={item => (
-              <List.Item
-                actions={[
-                  <a
-                    key="delete"
-                    onClick={() => updateType(item)}
-                  ><EditOutlined /></a>,
-                  <a
-                    key="update"
-                    onClick={() => deleteType(item.id)} style={{color: 'red'}}
-                  ><DeleteOutlined /></a>
-                ]}
-              >
-                <div
-                  style={{
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '50%',
-                    marginRight: '8px',
-                    backgroundColor: item.color
-                  }}
-                ></div>
-                <div
-                  style={{
-                    width: '230px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  <Tooltip title={item.name}>{item.name}</Tooltip>
-                </div>
-              </List.Item>
-            )}
-          />
-        </div>
+    <div className={styles.container}>
+      {/* 添加区域 */}
+      <div className={styles.addSection}>
+        <Form form={typesForm} layout="inline" onFinish={addTypes} className={styles.addForm}>
+          <Form.Item
+            name="name"
+            rules={[{ required: true, message: '请输入名称' }]}
+            className={styles.nameItem}
+          >
+            <Input placeholder="分类名称" />
+          </Form.Item>
+          <Form.Item
+            name="color"
+            rules={[{ required: true, message: '请选择颜色' }]}
+            className={styles.colorItem}
+          >
+            <ColorPicker showText style={{width: 100, justifyContent: 'start'}} />
+          </Form.Item>
+          <Form.Item>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              loading={adding}
+              onClick={() => typesForm.submit()}
+            >
+              新建分类
+            </Button>
+          </Form.Item>
+        </Form>
       </div>
-    </>
-  )
-}
+
+      {/* 分类列表 */}
+      <div className={styles.listSection}>
+        <Typography.Text strong className={styles.sectionTitle}>
+          已有分类
+          {types.length > 0 && (
+            <span className={styles.countBadge}>{types.length}</span>
+          )}
+        </Typography.Text>
+
+        {types.length === 0 ? (
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description="暂无分类，快去创建一个吧"
+            className={styles.empty}
+          />
+        ) : (
+          <div className={styles.typeList}>
+            {types.map(item => (
+              <div key={item.id} className={styles.typeCard}>
+                <div className={styles.typeInfo}>
+                  <div
+                    className={styles.colorDot}
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <Tooltip title={item.name}>
+                    <span className={styles.typeName}>{item.name}</span>
+                  </Tooltip>
+                </div>
+                <div className={styles.typeActions}>
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<EditOutlined />}
+                    onClick={() => updateType(item)}
+                  />
+                  <Popconfirm
+                    title="确认删除？"
+                    description={`确定要删除「${item.name}」吗？`}
+                    onConfirm={() => deleteType(item.id)}
+                    okText="删除"
+                    cancelText="取消"
+                    okButtonProps={{ danger: true }}
+                  >
+                    <Button
+                      type="text"
+                      size="small"
+                      danger
+                      icon={<DeleteOutlined />}
+                    />
+                  </Popconfirm>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default TypeSetting;

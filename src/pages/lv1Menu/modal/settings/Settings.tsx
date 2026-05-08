@@ -98,7 +98,6 @@ const Settings = (props: SettingsProps) => {
           {selectedKeys[0] === '2' &&
             <TypeSetting
               activeKey={selectedKeys[0]}
-              setOpen={setOpen}
             />
           }
           {/* 通用设置 */}
