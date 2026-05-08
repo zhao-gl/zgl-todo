@@ -1,11 +1,11 @@
-import {Menu, Modal, Form, Input, Button, message, Tag, Row, Col, ColorPicker, Switch, Typography} from "antd";
-import {GroupOutlined, PlusOutlined, SettingOutlined, UserOutlined, BulbOutlined} from "@ant-design/icons";
-import type { ColorPickerProps, GetProp } from 'antd';
+import {Menu, Modal} from "antd";
+import {CarryOutOutlined, GroupOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
 import type { MenuProps } from 'antd';
 import {useEffect, useRef, useState} from "react";
 import UserSetting from "@/pages/settings/userSetting/Index";
 import TypeSetting from "@/pages/settings/typeSetting/Index";
-import { useTheme } from "@/global/ThemeContext";
+import CommonSetting from "./commonSetting/Index";
+import OverviewSetting from "./overviewSetting/Index";
 type MenuItem = Required<MenuProps>['items'][number];
 type SettingsProps = {
   open: boolean;
@@ -18,24 +18,29 @@ const Settings = (props: SettingsProps) => {
   const {open, setOpen, defSettingArea, getTypeList} = props;
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const userInfo = JSON.parse(localStorage.getItem('user') || '{}');
-  const { theme, toggleTheme } = useTheme();
   // 个人信息
   const userSettingRef = useRef<any>(null);
   // 分类管理
   const items: MenuItem[] = [
     {
-      key: '1',
-      label: '个人信息',
+      key: "1",
+      label: "个人信息",
       icon: <UserOutlined />,
     },
+
     {
-      key: '2',
-      label: '分类管理',
+      key: "2",
+      label: "概览设置",
+      icon: <CarryOutOutlined />,
+    },
+    {
+      key: "3",
+      label: "分类管理",
       icon: <GroupOutlined />,
     },
     {
-      key: '3',
-      label: '通用设置',
+      key: "9",
+      label: "通用设置",
       icon: <SettingOutlined />,
     },
   ];
@@ -52,6 +57,9 @@ const Settings = (props: SettingsProps) => {
     if(activeKey === '3'){
       setOpen(false);
     }
+    if(activeKey === '9'){
+      setOpen(false);
+    }
   };
 
   useEffect(()=>{
@@ -60,7 +68,7 @@ const Settings = (props: SettingsProps) => {
 
   useEffect(()=>{
     if(!open){
-      if(selectedKeys[0] === '2') getTypeList()
+      if(selectedKeys[0] === '3') getTypeList()
     }
   }, [open])
 
@@ -76,64 +84,34 @@ const Settings = (props: SettingsProps) => {
       onOk={() => handleOk()}
       onCancel={() => setOpen(false)}
     >
-      <div style={{display: 'flex', height: 'calc(100vh - 300px)'}}>
+      <div style={{ display: "flex", height: "calc(100vh - 300px)" }}>
         <Menu
-          style={{ width: '30%' }}
+          style={{ width: "30%" }}
           mode="inline"
           items={items}
           selectedKeys={selectedKeys}
           onSelect={(keys) => setSelectedKeys(keys.selectedKeys)}
         />
-        <div style={{width: '100%', padding: '8px'}}>
+        <div style={{ width: "100%", padding: "8px" }}>
           {/*个人信息*/}
-          {selectedKeys[0] === '1' &&
+          {selectedKeys[0] === "1" && (
             <UserSetting
               ref={userSettingRef}
               activeKey={selectedKeys[0]}
               userInfo={userInfo}
               setOpen={setOpen}
             />
-          }
+          )}
+          {/*概览管理*/}
+          {selectedKeys[0] === "2" && (
+            <OverviewSetting />
+          )}
           {/*分类管理*/}
-          {selectedKeys[0] === '2' &&
-            <TypeSetting
-              activeKey={selectedKeys[0]}
-            />
-          }
+          {selectedKeys[0] === "3" && (
+            <TypeSetting activeKey={selectedKeys[0]} />
+          )}
           {/* 通用设置 */}
-          {selectedKeys[0] === '3' &&
-            <div style={{ padding: '16px' }}>
-              <Typography.Title level={5} style={{ marginBottom: 24 }}>
-                <BulbOutlined style={{ marginRight: 8 }} />
-                外观设置
-              </Typography.Title>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '16px 20px',
-                background: 'var(--bg-secondary)',
-                borderRadius: 8,
-                border: '1px solid var(--border-color)',
-              }}>
-                <div>
-                  <Typography.Text strong style={{ fontSize: 15 }}>
-                    {theme === 'dark' ? '🌙 深色模式' : '☀️ 浅色模式'}
-                  </Typography.Text>
-                  <br />
-                  <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-                    {theme === 'dark' ? '适合低光环境，减少眼部疲劳' : '明亮清晰，适合日间使用'}
-                  </Typography.Text>
-                </div>
-                <Switch
-                  checked={theme === 'dark'}
-                  onChange={toggleTheme}
-                  checkedChildren="深色"
-                  unCheckedChildren="浅色"
-                />
-              </div>
-            </div>
-          }
+          {selectedKeys[0] === "9" && <CommonSetting />}
         </div>
       </div>
     </Modal>

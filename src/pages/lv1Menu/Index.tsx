@@ -50,7 +50,7 @@ const Lv1Menu = () => {
       key: '2',
       icon: <SettingOutlined />,
       onClick: () => {
-        openSetting('3')
+        openSetting('9')
       },
     },
     {
@@ -143,7 +143,7 @@ const Lv1Menu = () => {
               type='link'
               size='small'
               style={{fontSize: '12px'}}
-              onClick={()=>openSetting('2')}
+              onClick={()=>openSetting('3')}
             >管理</Button>
           </div>
         </div>

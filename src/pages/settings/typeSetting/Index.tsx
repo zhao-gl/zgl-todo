@@ -13,7 +13,7 @@ import {
   Typography,
 } from "antd";
 import { useEffect, useState } from "react";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, GroupOutlined, PlusOutlined } from "@ant-design/icons";
 import { TypeItem } from "@/types/typeList";
 import styles from "./style.module.less";
 
@@ -136,27 +136,39 @@ const TypeSetting = (props: TypeSettingProps) => {
   };
 
   useEffect(() => {
-    if (activeKey === '2') getAllTypes();
+    if (activeKey === '3') getAllTypes();
   }, [activeKey]);
 
   return (
     <div className={styles.container}>
+      <Typography.Title level={5} style={{ marginBottom: 24 }}>
+        <GroupOutlined style={{ marginRight: 8 }} />
+        分类设置
+      </Typography.Title>
       {/* 添加区域 */}
       <div className={styles.addSection}>
-        <Form form={typesForm} layout="inline" onFinish={addTypes} className={styles.addForm}>
+        <Form
+          form={typesForm}
+          layout="inline"
+          onFinish={addTypes}
+          className={styles.addForm}
+        >
           <Form.Item
             name="name"
-            rules={[{ required: true, message: '请输入名称' }]}
+            rules={[{ required: true, message: "请输入名称" }]}
             className={styles.nameItem}
           >
             <Input placeholder="分类名称" />
           </Form.Item>
           <Form.Item
             name="color"
-            rules={[{ required: true, message: '请选择颜色' }]}
+            rules={[{ required: true, message: "请选择颜色" }]}
             className={styles.colorItem}
           >
-            <ColorPicker showText style={{width: 100, justifyContent: 'start'}} />
+            <ColorPicker
+              showText
+              style={{ width: 100, justifyContent: "start" }}
+            />
           </Form.Item>
           <Form.Item>
             <Button
@@ -188,7 +200,7 @@ const TypeSetting = (props: TypeSettingProps) => {
           />
         ) : (
           <div className={styles.typeList}>
-            {types.map(item => (
+            {types.map((item) => (
               <div key={item.id} className={styles.typeCard}>
                 <div className={styles.typeInfo}>
                   <div

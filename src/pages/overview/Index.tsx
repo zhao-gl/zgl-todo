@@ -91,21 +91,7 @@ const Overview = () => {
     const info = PRIORITY_MAP[priority as keyof typeof PRIORITY_MAP];
     if (!info) return null;
     return (
-      <span
-        style={{
-          display: 'inline-block',
-          width: 18,
-          height: 18,
-          borderRadius: '50%',
-          backgroundColor: info.color,
-          color: '#fff',
-          fontSize: 10,
-          lineHeight: '18px',
-          textAlign: 'center',
-          marginRight: 4,
-          flexShrink: 0,
-        }}
-      >
+      <span className={styles.todoPriority} style={{ backgroundColor: info.color }}>
         {info.name}
       </span>
     );
@@ -148,9 +134,9 @@ const Overview = () => {
               key={idx}
               className={[
                 styles.dayCell,
-                !isCurrentMonth(day) ? styles.otherMonth : '',
-                isToday(day) ? styles.today : '',
-              ].join(' ')}
+                !isCurrentMonth(day) ? styles.otherMonth : "",
+                isToday(day) ? styles.today : "",
+              ].join(" ")}
             >
               <div className={styles.dayHeader}>
                 <span className={styles.dayNum}>{day.date()}</span>
@@ -161,28 +147,21 @@ const Overview = () => {
                 )}
               </div>
               <div className={styles.dayTodos}>
-                {dayTodos.slice(0, 4).map(todo => (
-                  <Tooltip
-                    key={todo.id}
-                    title={
-                      <div style={{ maxWidth: 200 }}>
-                        {todo.desc ? <div style={{ marginBottom: 4 }}>{todo.desc}</div> : null}
-                        {todo.type_color && (
-                          <Tag color={todo.type_color} style={{ marginTop: 4 }}>
-                            {todo.type_color}
-                          </Tag>
-                        )}
-                      </div>
-                    }
-                  >
-                    <div className={[
+                {dayTodos.slice(0, 4).map((todo) => (
+                  <div
+                    className={[
                       styles.todoItem,
-                      todo.done === 1 ? styles.todoDone : '',
-                    ].join(' ')}>
-                      {getPriorityTag(todo.priority)}
-                      <span className={styles.todoText}>{todo.content}</span>
-                    </div>
-                  </Tooltip>
+                      todo.done === 1 ? styles.todoDone : "",
+                    ].join(" ")}
+                    style={{
+                      backgroundColor: todo.type_color
+                        ? `${todo.type_color}25`
+                        : undefined,
+                    }}
+                  >
+                    <span className={styles.todoText}>{todo.content}</span>
+                    {getPriorityTag(todo.priority)}
+                  </div>
                 ))}
                 {dayTodos.length > 4 && (
                   <div className={styles.moreTodos}>
