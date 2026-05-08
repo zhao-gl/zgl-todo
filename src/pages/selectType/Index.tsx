@@ -2,7 +2,7 @@ import ZglToolbar from "@/components/zglToolbar/ZglToolbar";
 import { useSearchParams } from "react-router-dom";
 import {useEffect, useState} from "react";
 import styles from "./style.module.less";
-import {Checkbox, Tooltip} from "antd";
+import {Checkbox, Empty, Tooltip} from "antd";
 import {UpCircleOutlined} from "@ant-design/icons";
 import {TodoItem} from "@/types/todoList";
 
@@ -32,27 +32,33 @@ const SelectType = () => {
     <>
       <ZglToolbar title={typeName} />
       <div className={styles.typeTodoList}>
-        {typeTodoList.map((item) => (
-          <div
-            key={item.id}
-            className={styles.typeTodoItem}
-            style={{borderLeft:`2px solid ${item.type_color}`}}
-          >
-            <Checkbox checked={item.done === 1} disabled />
-            <div className={styles.typeTodoItemContent}>
-              <div className={`${styles.typeTodoItemText} ${item.done === 1 ? styles.textDone : ''}`}>{item.content}</div>
-              {item.desc && <div className={styles.typeTodoItemDesc}>{item.desc}</div>}
+        {typeTodoList.length > 0 &&
+          typeTodoList.map((item) => (
+            <div
+              key={item.id}
+              className={styles.typeTodoItem}
+              style={{ borderLeft: `2px solid ${item.type_color}` }}
+            >
+              <Checkbox checked={item.done === 1} disabled />
+              <div className={styles.typeTodoItemContent}>
+                <div
+                  className={`${styles.typeTodoItemText} ${item.done === 1 ? styles.textDone : ""}`}
+                >
+                  {item.content}
+                </div>
+                {item.desc && (
+                  <div className={styles.typeTodoItemDesc}>{item.desc}</div>
+                )}
+              </div>
             </div>
-            {/*<div className={styles.typeTodoItemBtn} onClick={() => recoverFromRecycle(item)}>*/}
-            {/*  <Tooltip title={'恢复待办'}>*/}
-            {/*    <UpCircleOutlined />*/}
-            {/*  </Tooltip>*/}
-            {/*</div>*/}
-          </div>
-        ))}
+          ))
+        }
+        {typeTodoList.length === 0 && (
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        )}
       </div>
     </>
-  )
+  );
 }
 
 export default SelectType

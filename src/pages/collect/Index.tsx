@@ -2,7 +2,7 @@ import {TodoItem} from "@/types/todoList";
 import {ReactNode, useEffect, useState} from "react";
 import ZglToolBar from "@/components/zglToolbar/ZglToolbar";
 import styles from './style.module.less'
-import {Button, message, Tooltip} from "antd";
+import {Button, Empty, message, Tooltip} from "antd";
 import {CaretRightOutlined, CloseCircleOutlined, RollbackOutlined, UpCircleOutlined} from "@ant-design/icons";
 import dayjs from "dayjs";
 
@@ -43,28 +43,32 @@ const Collect = () => {
     <>
       <ZglToolBar title={"收集箱"} />
       <div className={styles.collectList}>
-        {noBelongTodoList.map((item) => (
-          <div
-            key={item.id}
-            className={styles.collectItem}
-            style={{ borderLeft: `2px solid ${item.type_color}` }}
-          >
-            <div className={styles.collectItemContent}>
-              <div className={styles.collectItemText}>{item.content}</div>
-              {item.desc && (
-                <div className={styles.collectItemDesc}>{item.desc}</div>
-              )}
-            </div>
+        {noBelongTodoList.length > 0 &&
+          noBelongTodoList.map((item) => (
             <div
-              className={styles.collectItemBtn}
-              onClick={() => removeFromCollectBox(item)}
+              key={item.id}
+              className={styles.collectItem}
+              style={{ borderLeft: `2px solid ${item.type_color}` }}
             >
-              <Tooltip title={"移出收集箱"}>
-                <CloseCircleOutlined />
-              </Tooltip>
+              <div className={styles.collectItemContent}>
+                <div className={styles.collectItemText}>{item.content}</div>
+                {item.desc && (
+                  <div className={styles.collectItemDesc}>{item.desc}</div>
+                )}
+              </div>
+              <div
+                className={styles.collectItemBtn}
+                onClick={() => removeFromCollectBox(item)}
+              >
+                <Tooltip title={"移出收集箱"}>
+                  <CloseCircleOutlined />
+                </Tooltip>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        {noBelongTodoList.length === 0 && (
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        )}
       </div>
     </>
   );

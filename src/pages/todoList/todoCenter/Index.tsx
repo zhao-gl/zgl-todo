@@ -2,7 +2,7 @@
 import {TodoCenterProps, TodoItem} from "@/types/todoList";
 import styles from "./style.module.less";
 import React, {useState} from "react";
-import {Checkbox} from "antd";
+import {Checkbox, Empty} from "antd";
 import {PRIORITY_MAP} from "@/global/Global"
 import {
   DndContext,
@@ -184,10 +184,10 @@ const TodoCenter = (props: TodoCenterProps) => {
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={todoList.map(i => i.tid)} // 确保 tid 是 string
+            items={todoList.map((i) => i.tid)} // 确保 tid 是 string
             strategy={verticalListSortingStrategy}
           >
-            {todoList.map(item => (
+            {todoList.map((item) => (
               <SortableItem
                 key={item.tid}
                 id={item.tid}
@@ -201,10 +201,8 @@ const TodoCenter = (props: TodoCenterProps) => {
           </SortableContext>
         </DndContext>
       )}
-      {todoList.length === 0 && (
-        <div className={styles.empty}></div>
-      )}
+      {todoList.length === 0 && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
     </div>
-  )
+  );
 };
 export default TodoCenter;
