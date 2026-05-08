@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Form, Input, Button, message } from 'antd';
 import { UserOutlined, LockOutlined, CheckCircleOutlined } from '@ant-design/icons';
-import styles from './login.module.less';
+import styles from './style.module.less';
 import GlobalHeader from '@/components/globalHeader/GloablHeader';
 import { useNavigate } from 'react-router-dom';
 

@@ -2,13 +2,13 @@ import { createBrowserRouter, Navigate, RouteObject } from 'react-router-dom';
 import { CarryOutOutlined, InboxOutlined, PieChartOutlined, SunOutlined } from "@ant-design/icons";
 import App from '../App';
 import GlobalLayout from "@/layout/GlobalLayout";
-import TodoList from "@/pages/todoList/TodoList";
-import Overview from "@/pages/overview/Overview";
-import Collect from "@/pages/collect/Collect";
-import Recycle from "@/pages/recycle/Recycle";
-import Statistics from "@/pages/statistics/Statistics";
-import Login from "@/pages/login/Login";
-import SelectType from "@/pages/selectType/SelectType";
+import TodoList from "@/pages/todoList/Index";
+import Overview from "@/pages/overview/Index";
+import Collect from "@/pages/collect/Index";
+import Recycle from "@/pages/recycle/Index";
+import Statistics from "@/pages/statistics/Index";
+import Login from "@/pages/login/Index";
+import SelectType from "@/pages/selectType/Index";
 
 const routes: RouteObject[] = [
   {

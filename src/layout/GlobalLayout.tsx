@@ -2,7 +2,7 @@ import { Layout } from 'antd';
 import React from "react";
 const { Sider, Content } = Layout;
 import styles from "./globalLayout.module.less"
-import Lv1Menu from "@/pages/lv1Menu/Lv1Menu";
+import Lv1Menu from "@/pages/lv1Menu/Index";
 import {Outlet} from "react-router-dom";
 import GlobalHeader from "@/components/globalHeader/GloablHeader";
 

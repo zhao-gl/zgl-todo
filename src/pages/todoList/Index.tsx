@@ -4,8 +4,8 @@ import React, {useCallback, useEffect, useState} from "react";
 import dayjs from "dayjs";
 import {TodoItem} from "@/types/todoList";
 import {TypeItem} from "@/types/typeList";
-import TodoCenter from "@/pages/todoList/TodoCenter";
-import TodoEditing from "@/pages/todoList/TodoEditing";
+import TodoCenter from "@/pages/todoList/todoCenter/Index";
+import TodoEditing from "@/pages/todoList/todoEditing/Index";
 import {PlusOutlined} from "@ant-design/icons";
 import CustomWeekPicker from "./components/CustomWeekPicker/CustomWeekPicker"
 import ZglToolBar from "@/components/zglToolbar/ZglToolbar";

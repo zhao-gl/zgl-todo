@@ -1,0 +1,68 @@
+.todoEditing {
+  position: relative;
+  :global {
+    .ant-form-item {
+      margin-bottom: 12px;
+    }
+  }
+  .todoEditFooter {
+    width: calc(100% - 48px);
+    position: absolute;
+    bottom: 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    font-size: 18px;
+  }
+}
+
+.typeRadioGroup {
+  max-height: 100px;
+  overflow-y: auto;
+  &::-webkit-scrollbar {
+    width: 6px; // 设置滚动条宽度
+  }
+  &::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 3px;
+    &:hover {
+      background: var(--scrollbar-thumb-hover);
+    }
+  }
+  .typeRadioButtonTextWrapper {
+    width: 65px;
+    display: flex;
+    align-items: center;
+    .typeRadioButtonIcon {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .typeRadioButtonText {
+      width: 50px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
+.priorityRadioGroup {
+  .priorityRadioWrapper {
+    display: flex;
+    align-items: center;
+    .priorityRadioIcon {
+      width: 2px;
+      height: 12px;
+    }
+    .priorityRadioText {
+      width: 46px;
+      margin-left: 4px;
+    }
+  }
+}

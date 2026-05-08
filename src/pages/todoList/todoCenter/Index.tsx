@@ -1,6 +1,6 @@
 
 import {TodoCenterProps, TodoItem} from "@/types/todoList";
-import styles from "@/pages/todoList/style.module.less";
+import styles from "./style.module.less";
 import React, {useState} from "react";
 import {Checkbox} from "antd";
 import {PRIORITY_MAP} from "@/global/Global"
