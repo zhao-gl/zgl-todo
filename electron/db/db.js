@@ -186,8 +186,8 @@ class SQLiteDatabase {
       // 定义合法的排序选项（防止 SQL 注入）
       const sortOptions = {
         1: 'created_at DESC',
-        2: 'priority ASC, created_at DESC', // 假设 priority 字段存在，值越小优先级越高
-        3: 'sort ASC, created_at DESC'       // 自定义排序字段 `sort`
+        2: 'priority IS NULL, priority ASC, created_at DESC',
+        3: 'sort ASC, created_at DESC'
       };
       // 验证 sortType 是否合法
       if (!sortOptions.hasOwnProperty(sortType)) {
@@ -317,7 +317,7 @@ class SQLiteDatabase {
       // 定义合法的排序选项（防止 SQL 注入）
       const sortOptions = {
         1: 'created_at DESC',
-        2: 'priority ASC, created_at DESC',
+        2: 'priority IS NULL, priority ASC, created_at DESC',
         3: 'sort ASC, created_at DESC'
       };
       // 验证 sortType 是否合法
@@ -372,7 +372,7 @@ class SQLiteDatabase {
         WHERE user_id = ?
           AND belong_day LIKE ?
           AND is_deleted = 0
-        ORDER BY belong_day ASC, priority ASC, created_at ASC
+        ORDER BY belong_day ASC, priority IS NULL, priority ASC, created_at ASC
       `).all(userId, `${yearMonth}%`);
     }
   }
