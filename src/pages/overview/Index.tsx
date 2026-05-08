@@ -1,18 +1,23 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { Button, Tag, Tooltip, Typography } from 'antd';
+import { Button, Tooltip, Typography } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import dayjs, { type Dayjs } from 'dayjs';
 import ZglToolbar from '@/components/zglToolbar/ZglToolbar';
 import { PRIORITY_MAP } from '@/global/Global';
+import { useSettings } from '@/global/SettingsContext';
 import type { TodoItem } from '@/types/todoList';
 import styles from './style.module.less';
 
-const WEEK_HEADERS = ['日', '一', '二', '三', '四', '五', '六'];
+const WEEK_HEADERS_MONDAY = ['一', '二', '三', '四', '五', '六', '日'];
+const WEEK_HEADERS_SUNDAY = ['日', '一', '二', '三', '四', '五', '六'];
 
 const Overview = () => {
+  const { settings } = useSettings();
   const [currentMonth, setCurrentMonth] = useState<Dayjs>(dayjs());
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const weekHeaders = settings.overview.weekStartDay === 1 ? WEEK_HEADERS_MONDAY : WEEK_HEADERS_SUNDAY;
 
   const userInfo = useMemo(() => {
     try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; }
@@ -56,11 +61,13 @@ const Overview = () => {
     const endOfMonth = currentMonth.endOf('month');
     const startDayOfWeek = startOfMonth.day(); // 0=周日
     const daysInMonth = currentMonth.daysInMonth();
+    const weekStartDay = settings.overview.weekStartDay; // 0=周日, 1=周一
 
     const days: (Dayjs | null)[] = [];
 
     // 上月填充
-    for (let i = startDayOfWeek - 1; i >= 0; i--) {
+    let offset = (startDayOfWeek - weekStartDay + 7) % 7;
+    for (let i = offset - 1; i >= 0; i--) {
       days.push(startOfMonth.subtract(i + 1, 'day'));
     }
 
@@ -115,7 +122,7 @@ const Overview = () => {
 
       {/* 星期头 */}
       <div className={styles.weekHeader}>
-        {WEEK_HEADERS.map(w => (
+        {weekHeaders.map(w => (
           <div key={w} className={styles.weekCell}>{w}</div>
         ))}
       </div>
@@ -160,7 +167,7 @@ const Overview = () => {
                     }}
                   >
                     <span className={styles.todoText}>{todo.content}</span>
-                    {getPriorityTag(todo.priority)}
+                    {settings.overview.showPriority && getPriorityTag(todo.priority)}
                   </div>
                 ))}
                 {dayTodos.length > 4 && (

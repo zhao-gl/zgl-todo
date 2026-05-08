@@ -1,33 +1,9 @@
-import { useEffect, useState } from "react";
 import { Select, Switch, Typography } from "antd";
 import { CalendarOutlined, FlagOutlined } from "@ant-design/icons";
-
-export interface OverviewSettings {
-  weekStartDay: 0 | 1; // 0=周日, 1=周一
-  showPriority: boolean;
-}
-
-const DEFAULT_SETTINGS: OverviewSettings = {
-  weekStartDay: 0,
-  showPriority: true,
-};
-
-const STORAGE_KEY = "overviewSettings";
-
-export const getOverviewSettings = (): OverviewSettings => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
-  } catch {}
-  return DEFAULT_SETTINGS;
-};
+import { useSettings } from "@/global/SettingsContext";
 
 const OverviewSetting = () => {
-  const [settings, setSettings] = useState<OverviewSettings>(getOverviewSettings);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-  }, [settings]);
+  const { settings, updateOverviewSettings } = useSettings();
 
   return (
     <div style={{ padding: "16px" }}>
@@ -59,9 +35,9 @@ const OverviewSetting = () => {
           </Typography.Text>
         </div>
         <Select
-          value={settings.weekStartDay}
+          value={settings.overview.weekStartDay}
           onChange={(val) =>
-            setSettings((prev) => ({ ...prev, weekStartDay: val }))
+            updateOverviewSettings({ weekStartDay: val })
           }
           style={{ width: 100 }}
           options={[
@@ -94,9 +70,9 @@ const OverviewSetting = () => {
           </Typography.Text>
         </div>
         <Switch
-          checked={settings.showPriority}
+          checked={settings.overview.showPriority}
           onChange={(val) =>
-            setSettings((prev) => ({ ...prev, showPriority: val }))
+            updateOverviewSettings({ showPriority: val })
           }
         />
       </div>

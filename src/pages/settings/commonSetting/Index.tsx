@@ -1,9 +1,17 @@
 import { useTheme } from "@/global/ThemeContext";
+import { useSettings } from "@/global/SettingsContext";
 import { BulbOutlined } from "@ant-design/icons";
 import { Switch, Typography } from "antd";
+import { useEffect } from "react";
 
 const CommonSetting = () => {
   const { theme, toggleTheme } = useTheme();
+  const { updateCommonSettings } = useSettings();
+
+  useEffect(() => {
+    updateCommonSettings({ theme });
+  }, [theme]);
+
   return (
     <div style={{ padding: "16px" }}>
       <Typography.Title level={5} style={{ marginBottom: 24 }}>
