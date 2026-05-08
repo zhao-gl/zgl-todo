@@ -97,6 +97,24 @@ class SQLiteDatabase {
         UPDATE tb_types SET updated_at = datetime('now', 'localtime') WHERE id = NEW.id;
       END;
     `);
+    // 创建 tb_settings 表
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS tb_settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL UNIQUE,
+        settings TEXT NOT NULL DEFAULT '{}',
+        created_at DATETIME DEFAULT (datetime('now', 'localtime')),
+        updated_at DATETIME DEFAULT (datetime('now', 'localtime')),
+        FOREIGN KEY (user_id) REFERENCES tb_users (id)
+      )
+    `);
+    this.db.exec(`
+      CREATE TRIGGER IF NOT EXISTS update_settings_timestamp
+      AFTER UPDATE ON tb_settings
+      BEGIN
+        UPDATE tb_settings SET updated_at = datetime('now', 'localtime') WHERE id = NEW.id;
+      END;
+    `);
   }
 
   /**
@@ -491,6 +509,68 @@ class SQLiteDatabase {
      */
     dbGetAllTypes: () => {
       return this.db.prepare('SELECT * FROM tb_types').all();
+    }
+  }
+
+  // 设置操作
+  setting = {
+    /**
+     * 获取用户设置
+     * @param {number} userId
+     * @returns {Record<string, any> | null}
+     */
+    dbGetSettings: (userId) => {
+      const row = this.db.prepare(`
+        SELECT settings FROM tb_settings WHERE user_id = ?
+      `).get(userId);
+      return row ? JSON.parse(row.settings) : null;
+    },
+
+    /**
+     * 保存/覆盖用户设置
+     * @param {number} userId
+     * @param {Record<string, any>} settingsObj
+     * @returns {StatementResultingChanges}
+     */
+    dbSaveSettings: (userId, settingsObj) => {
+      const settingsStr = JSON.stringify(settingsObj);
+      const existing = this.db.prepare(`
+        SELECT id FROM tb_settings WHERE user_id = ?
+      `).get(userId);
+      if (existing) {
+        return this.db.prepare(`
+          UPDATE tb_settings SET settings = ? WHERE user_id = ?
+        `).run(settingsStr, userId);
+      } else {
+        return this.db.prepare(`
+          INSERT INTO tb_settings (user_id, settings) VALUES (?, ?)
+        `).run(userId, settingsStr);
+      }
+    },
+
+    /**
+     * 更新用户设置的某个字段（局部更新）
+     * @param {number} userId
+     * @param {string} key - 设置键名
+     * @param {any} value - 设置值
+     * @returns {StatementResultingChanges}
+     */
+    dbUpdateSetting: (userId, key, value) => {
+      const row = this.db.prepare(`
+        SELECT settings FROM tb_settings WHERE user_id = ?
+      `).get(userId);
+      let settings = row ? JSON.parse(row.settings) : {};
+      settings[key] = value;
+      const settingsStr = JSON.stringify(settings);
+      if (row) {
+        return this.db.prepare(`
+          UPDATE tb_settings SET settings = ? WHERE user_id = ?
+        `).run(settingsStr, userId);
+      } else {
+        return this.db.prepare(`
+          INSERT INTO tb_settings (user_id, settings) VALUES (?, ?)
+        `).run(userId, settingsStr);
+      }
     }
   }
 }

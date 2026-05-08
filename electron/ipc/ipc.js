@@ -2,12 +2,14 @@ const { ipcMain, BrowserWindow } = require("electron");
 const TodoController = require('../db/controller/todo');
 const UserController = require('../db/controller/user');
 const TypeController = require('../db/controller/type');
+const SettingsController = require('../db/controller/settings');
 
 // 初始化控制器
 const controllers = {
   todo: new TodoController(),
   user: new UserController(),
-  type: new TypeController()
+  type: new TypeController(),
+  settings: new SettingsController()
 };
 
 // 设置ipc事件监听器
