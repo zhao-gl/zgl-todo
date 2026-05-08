@@ -3,8 +3,8 @@ import {GroupOutlined, PlusOutlined, SettingOutlined, UserOutlined, BulbOutlined
 import type { ColorPickerProps, GetProp } from 'antd';
 import type { MenuProps } from 'antd';
 import {useEffect, useRef, useState} from "react";
-import UserSetting from "@/pages/settings/UserSetting";
-import TypeSetting from "@/pages/settings/typeSetting/TypeSetting";
+import UserSetting from "@/pages/settings/userSetting/Index";
+import TypeSetting from "@/pages/settings/typeSetting/Index";
 import { useTheme } from "@/global/ThemeContext";
 type MenuItem = Required<MenuProps>['items'][number];
 type SettingsProps = {

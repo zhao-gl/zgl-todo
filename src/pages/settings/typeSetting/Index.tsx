@@ -15,7 +15,7 @@ import {
 import { useEffect, useState } from "react";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { TypeItem } from "@/types/typeList";
-import styles from "./typeSetting.module.less";
+import styles from "./style.module.less";
 
 type TypeSettingProps = {
   activeKey: string;
