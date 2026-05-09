@@ -30,8 +30,8 @@
 
 确保你的开发环境中已安装以下软件：
 
-- [Node.js](https://nodejs.org/) (推荐 LTS 版本)
-- [npm](https://www.npmjs.com/) 或 [yarn](https://yarnpkg.com/)
+- [Node.js](https://nodejs.org/) (推荐 LTS 版本 v20.x)
+- [npm](https://www.npmjs.com/) 或 [pnpm](https://yarnpkg.com/)
 
 ### 安装步骤
 
