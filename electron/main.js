@@ -33,6 +33,20 @@ function endTimer(name) {
 }
 
 console.log('应用程序启动');
+
+// 请求单实例锁，确保同时只能运行一个应用
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  console.log('已有应用实例在运行，退出当前实例');
+  app.quit();
+} else {
+  // 当第二个实例被启动时，聚焦已有窗口
+  app.on('second-instance', () => {
+    console.log('检测到第二个实例，聚焦已有窗口');
+    showMainWindow();
+  });
+}
+
 let mainWindow;
 let db;
 const isMac = process.platform === 'darwin';

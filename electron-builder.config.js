@@ -82,6 +82,7 @@ module.exports = {
     shortcutName: 'zgl-todo', // 桌面快捷方式的名称
     uninstallDisplayName: 'zgl-todo', // 卸载时显示的名称
     artifactName: '${productName}-${version}-setup.${ext}', // 安装包名称
+    include: 'build/installer.nsh', // 自定义安装/卸载脚本，自动关闭旧应用
   },
 
   // macOS 配置
