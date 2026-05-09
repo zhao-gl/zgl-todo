@@ -31,7 +31,7 @@
 确保你的开发环境中已安装以下软件：
 
 - [Node.js](https://nodejs.org/) (推荐 LTS 版本 v20.x)
-- [npm](https://www.npmjs.com/) 或 [pnpm](https://yarnpkg.com/)
+- [npm](https://www.npmjs.com/) 或 [pnpm](https://www.pnpm.cn/)
 
 ### 安装步骤
 
