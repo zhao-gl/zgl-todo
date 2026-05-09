@@ -49,7 +49,9 @@ function showMainWindow() {
 
 // 创建托盘
 function createTray() {
-  const iconPath = path.join(__dirname, '../build/icons/favicon-32.png');
+  const iconPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'build/icons/favicon-32.png')
+    : path.join(__dirname, '../build/icons/favicon-32.png');
   const trayIcon = nativeImage.createFromPath(iconPath);
   tray = new Tray(trayIcon);
   const contextMenu = Menu.buildFromTemplate([
@@ -73,7 +75,9 @@ function createWindow () {
     minWidth: 1000,
     minHeight: 600,
     title: APP_TITLE,
-    icon: path.join(__dirname, '../build/icons/favicon-96.png'),
+    icon: app.isPackaged
+      ? path.join(process.resourcesPath, 'build/icons/app.ico')
+      : path.join(__dirname, '../build/icons/app.ico'),
     frame: false, // 移除默认的菜单栏
     show: false,
     webPreferences: {
@@ -95,6 +99,11 @@ function createWindow () {
     endTimer('load-dist-file');
     // 确保窗口标题
     mainWindow.setTitle(APP_TITLE);
+    // Windows：显式设置任务栏图标
+    const winIconPath = app.isPackaged
+      ? path.join(process.resourcesPath, 'build/icons/app.ico')
+      : path.join(__dirname, '../build/icons/app.ico');
+    mainWindow.setIcon(nativeImage.createFromPath(winIconPath));
     // 防止通过快捷键打开
     mainWindow.webContents.on('before-input-event', (event, input) => {
       // 禁用 F12、Ctrl+Shift+I、Ctrl+Shift+J 等 DevTools 快捷键
@@ -112,6 +121,9 @@ function createWindow () {
     const url = 'http://127.0.0.1:3000';
     // 为了改善用户体验，立即显示窗口，而不是等待页面加载完成
     mainWindow.show();
+    // Windows：开发环境也设置任务栏图标
+    const winIconPathDev = path.join(__dirname, '../build/icons/app.ico');
+    mainWindow.setIcon(nativeImage.createFromPath(winIconPathDev));
     // 监听页面加载事件
     mainWindow.webContents.on('did-start-loading', () => {
       startTimer('page-loading');

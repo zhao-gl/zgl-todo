@@ -49,8 +49,14 @@ module.exports = {
     // '**/node_modules/.pnpm/file-uri-to-path@*/**/*',
   ],
 
-  // 额外资源
-  extraResources: [],
+  // 额外资源（打包后位于 process.resourcesPath 下）
+  extraResources: [
+    {
+      from: 'build/icons',
+      to: 'build/icons',
+      filter: ['**/*']
+    }
+  ],
 
   // Windows 配置
   win: {
