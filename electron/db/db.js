@@ -496,11 +496,21 @@ class SQLiteDatabase {
      * @returns {*}
      */
     dbDeleteType: (id) => {
-      return this.db.prepare(`
-        DELETE
-        FROM tb_types
-        WHERE id = ?`
-      ).run(id);
+      const transaction = this.db.transaction(() => {
+        // 清除所有使用该分类的待办的分类关联
+        this.db.prepare(`
+          UPDATE tb_todos
+          SET type_id = NULL,
+              type_color = NULL,
+              updated_at = datetime('now', 'localtime')
+          WHERE type_id = ?
+        `).run(id);
+        // 删除分类
+        return this.db.prepare(`
+          DELETE FROM tb_types WHERE id = ?
+        `).run(id);
+      });
+      return transaction();
     },
 
     /**
