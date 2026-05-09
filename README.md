@@ -6,6 +6,12 @@
 
 本项目旨在提供一个简洁、高效的待办事项管理工具，支持任务的增删改查、状态标记等功能。前端采用现代 Web 技术栈构建，注重用户体验和代码质量。
 
+## 📸 项目截图
+
+![日常使用](docs/img/light_day.png)
+
+![日程概览](docs/img/dark_overview.png)
+
 ## ✨ 主要功能
 
 - [x] 创建新任务
@@ -40,3 +46,4 @@
    ```bash
    git clone https://github.com/zhaogl/zgl-todo.git
    cd zgl-todo
+   ```

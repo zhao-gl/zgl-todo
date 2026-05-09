@@ -34,7 +34,8 @@ module.exports = {
     '!**/test/**/*',
     '!**/*.spec.*',
     '!**/*.test.*',
-    '!node_modules/*/{test,example}'
+    '!node_modules/*/{test,example}',
+    '!docs/**/*'
   ],
 
   compression: 'maximum', // 启用最高级别压缩
