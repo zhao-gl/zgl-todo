@@ -49,12 +49,11 @@ function showMainWindow() {
 
 // 创建托盘
 function createTray() {
-  const iconPath = path.join(__dirname, '../build/icon.png');
+  const iconPath = path.join(__dirname, '../build/icons/favicon-32.png');
   const trayIcon = nativeImage.createFromPath(iconPath);
   tray = new Tray(trayIcon);
   const contextMenu = Menu.buildFromTemplate([
     { label: '显示主窗口', click: () => showMainWindow() },
-    { type: 'separator' },
     { label: '退出', click: () => {
       if (db) db.close();
       app.quit();
@@ -74,7 +73,7 @@ function createWindow () {
     minWidth: 1000,
     minHeight: 600,
     title: APP_TITLE,
-    icon: path.join(__dirname, '../build/icon.png'),
+    icon: path.join(__dirname, '../build/icons/favicon-96.png'),
     frame: false, // 移除默认的菜单栏
     show: false,
     webPreferences: {

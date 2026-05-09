@@ -4,6 +4,8 @@ import { UserOutlined, LockOutlined, CheckCircleOutlined } from '@ant-design/ico
 import styles from './style.module.less';
 import GlobalHeader from '@/components/globalHeader/GloablHeader';
 import { useNavigate } from 'react-router-dom';
+// @ts-ignore
+import logoSvg from "@/assets/logo.svg"; 
 
 const Login = () => {
   const navigate = useNavigate();
@@ -52,7 +54,7 @@ const Login = () => {
           {/* 品牌区 */}
           <div className={styles.brand}>
             <div className={styles.logoIcon}>
-              <CheckCircleOutlined />
+              <img src={logoSvg} alt="logo" width={56} height={56} />
             </div>
             <h1 className={styles.title}>ZGL Todo</h1>
             <p className={styles.subtitle}>高效管理你的每一天</p>
