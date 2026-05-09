@@ -63,7 +63,7 @@ const Lv1Menu = () => {
 
   // 获取分类列表
   const getTypeList = async () => {
-    const res = await window.electronAPI?.dbQuery('type.getAllTypes');
+    const res = await window.electronAPI?.dbQuery('type.getTypesByUserId', userinfo.id);
     if(Array.isArray(res)){
       setTypeList(res)
     }

@@ -29,10 +29,11 @@ const TypeSetting = (props: TypeSettingProps) => {
   const [editForm] = Form.useForm();
   const [types, setTypes] = useState<TypeItem[]>([]);
   const [adding, setAdding] = useState(false);
+  const userInfo = JSON.parse(localStorage.getItem('user') || '{}');
 
-  // 获取所有分类
+  // 获取当前用户的分类
   const getAllTypes = async () => {
-    const res = await window.electronAPI?.dbQuery('type.getAllTypes');
+    const res = await window.electronAPI?.dbQuery('type.getTypesByUserId', userInfo.id);
     if (Array.isArray(res)) {
       setTypes(res);
     }
@@ -46,6 +47,7 @@ const TypeSetting = (props: TypeSettingProps) => {
       const res = await window.electronAPI?.dbQuery('type.addType', {
         ...values,
         color: colorStr,
+        userId: userInfo.id,
       });
       if (res?.changes === 1) {
         message.success('添加成功');

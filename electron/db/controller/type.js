@@ -20,9 +20,9 @@ class TypeController {
     return this.db.type.dbUpdateType(params);
   }
 
-  // 查询所有类型
-  getAllTypes() {
-    return this.db.type.dbGetAllTypes();
+  // 根据用户ID查询类型
+  getTypesByUserId(userId) {
+    return this.db.type.dbGetTypesByUserId(userId);
   }
 }
 

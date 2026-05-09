@@ -10,7 +10,7 @@ module.exports = {
   // 应用基本信息
   appId: 'com.zgl.todo',
   productName: 'zgl-todo',
-  copyright: 'Copyright © 2024 zhaogl',
+  copyright: 'Copyright © 2026 zhaogl',
 
   // 输出目录配置
   directories: {
@@ -60,7 +60,7 @@ module.exports = {
         arch: ['x64']
       }
     ],
-    icon: 'build/icon.ico',
+    icon: 'build/icons/app.ico',
     publisherName: 'zhaogl',
     signingHashAlgorithms: ['sha256'],
     // 时间戳服务器（防止证书过期后无法验证）
@@ -85,7 +85,7 @@ module.exports = {
       'zip'
     ],
     category: 'public.app-category.productivity',
-    // icon: 'build/icon.icns',
+    icon: 'build/icons/app.icns',
     hardenedRuntime: true,
     gatekeeperAssess: false,
     entitlements: 'build/entitlements.mac.plist',
@@ -123,10 +123,13 @@ module.exports = {
   },
 
   // 发布配置
-  // publish: {
-  //   provider: 'github',
-  //   releaseType: 'release'
-  // },
+  publish: {
+    provider: 'github',
+    owner: 'zhao-gl',
+    repo: 'zgl-todo',
+    releaseType: 'release',
+    private: false
+  },
 
   // 构建钩子函数
   afterPack: async (context) => {

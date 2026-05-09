@@ -82,6 +82,7 @@ class SQLiteDatabase {
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS tb_types (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER DEFAULT 0,
         todo_ids TEXT,
         name TEXT NOT NULL,
         color TEXT NOT NULL,
@@ -89,6 +90,14 @@ class SQLiteDatabase {
         updated_at DATETIME DEFAULT (datetime('now', 'localtime'))
       )
     `);
+    // 数据库迁移：检测旧版 tb_types 表是否缺少 user_id 列
+    const typeColumns = this.db.prepare("PRAGMA table_info(tb_types)").all();
+    const hasUserId = typeColumns.some((col) => col.name === 'user_id');
+    if (!hasUserId) {
+      console.log('🔄 数据库迁移: tb_types 表添加 user_id 列...');
+      this.db.exec(`ALTER TABLE tb_types ADD COLUMN user_id INTEGER DEFAULT 0`);
+      console.log('✅ 数据库迁移完成');
+    }
     // 创建触发器，更新时自动修改 updated_at
     this.db.exec(`
       CREATE TRIGGER IF NOT EXISTS update_types_timestamp
@@ -444,6 +453,8 @@ class SQLiteDatabase {
         this.db.prepare(`DELETE FROM tb_todos WHERE user_id = ?`).run(id);
         // 再删除用户的设置
         this.db.prepare(`DELETE FROM tb_settings WHERE user_id = ?`).run(id);
+        // 再删除用户的分类标签
+        this.db.prepare(`DELETE FROM tb_types WHERE user_id = ?`).run(id);
         // 最后删除用户
         return this.db.prepare(`DELETE FROM tb_users WHERE id = ?`).run(id);
       });
@@ -470,12 +481,13 @@ class SQLiteDatabase {
      * 新增类型
      * @param name
      * @param color
+     * @param userId
      */
-    dbAddType: ({name, color}) => {
+    dbAddType: ({name, color, userId}) => {
       return this.db.prepare(`
-        INSERT INTO tb_types (name, color)
-        VALUES (?, ?)
-      `).run(name, color);
+        INSERT INTO tb_types (name, color, user_id)
+        VALUES (?, ?, ?)
+      `).run(name, color, userId);
     },
 
     /**
@@ -508,11 +520,12 @@ class SQLiteDatabase {
     },
 
     /**
-     * 查询所有类型
+     * 根据用户ID查询所有类型
+     * @param userId
      * @returns {*}
      */
-    dbGetAllTypes: () => {
-      return this.db.prepare('SELECT * FROM tb_types').all();
+    dbGetTypesByUserId: (userId) => {
+      return this.db.prepare('SELECT * FROM tb_types WHERE user_id = ?').all(userId);
     }
   }
 
